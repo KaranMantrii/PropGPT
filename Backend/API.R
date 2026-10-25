@@ -313,8 +313,9 @@ api$setApiSpec(function(spec) {
 # START API SERVER
 # ============================================================
 
+port <- as.numeric(Sys.getenv("PORT", "8000"))
 api$run(
-  host = "127.0.0.1",
-  port = 8000
+  host = "0.0.0.0",
+  port = port
 )
 

@@ -23,9 +23,9 @@ source("Conversation.R")
 
 # Initialize datasets once at backend startup
 PROPGPT_MARKET_DATA <- initialize_market_intelligence(
-  flat_path = "Datasets\\flat.csv",
-  house_path = "Datasets\\house.csv",
-  rent_path = "Datasets\\rental.csv",
+  flat_path = file.path("Datasets", "flat.csv"),
+  house_path = file.path("Datasets", "house.csv"),
+  rent_path = file.path("Datasets", "rental.csv"),
   module_dir = "market_intelligence"
 )
 
