@@ -10,9 +10,9 @@
 # Run this after setting the project working directory to backend/.
 
 initialize_market_intelligence <- function(
-    flat_path = "C:\\Users\\lenovo\\Downloads\\flat.csv",
-    house_path = "C:\\Users\\lenovo\\Downloads\\house.csv",
-    rent_path = "C:\\Users\\lenovo\\Downloads\\rental.csv",
+    flat_path = "Datasets\\flat.csv",
+    house_path = "Datasets\\house.csv",
+    rent_path = "Datasets\\rental.csv",
     module_dir = "market_intelligence") {
 
   module_files <- c(
