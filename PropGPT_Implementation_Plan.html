@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>PropGPT — Implementation Plan</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+  @page {
+    size: A4;
+    margin: 18mm 16mm 18mm 16mm;
+    @bottom-right {
+      content: counter(page);
+    }
+  }
+
+  * {
+    box-sizing: border-box;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  body {
+    font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    color: #1e293b;
+    background-color: #ffffff;
+    line-height: 1.55;
+    font-size: 13px;
+    margin: 0;
+    padding: 0;
+  }
+
+  /* Cover / Header Banner */
+  .header-card {
+    background: linear-gradient(135deg, #070c18 0%, #0f1c34 60%, #172a4d 100%);
+    color: #f8fafc;
+    border-radius: 12px;
+    padding: 28px 32px;
+    margin-bottom: 24px;
+    border: 1px solid rgba(56, 189, 248, 0.2);
+    box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.3);
+  }
+
+  .badge-top {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(56, 189, 248, 0.12);
+    color: #38bdf8;
+    border: 1px solid rgba(56, 189, 248, 0.3);
+    padding: 4px 10px;
+    border-radius: 9999px;
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+
+  .pulse-dot {
+    width: 6px;
+    height: 6px;
+    background-color: #38bdf8;
+    border-radius: 50%;
+  }
+
+  .header-title {
+    font-size: 26px;
+    font-weight: 800;
+    line-height: 1.25;
+    margin: 0 0 8px 0;
+    letter-spacing: -0.02em;
+    color: #ffffff;
+  }
+
+  .header-title span {
+    color: #38bdf8;
+  }
+
+  .header-subtitle {
+    font-size: 13.5px;
+    color: #94a3b8;
+    margin: 0 0 16px 0;
+    max-width: 680px;
+    line-height: 1.5;
+  }
+
+  .header-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    padding-top: 14px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    font-size: 11px;
+    color: #cbd5e1;
+  }
+
+  .header-meta-item strong {
+    color: #ffffff;
+    font-weight: 600;
+  }
+
+  /* Headings */
+  h2 {
+    font-size: 17px;
+    font-weight: 700;
+    color: #0f172a;
+    margin: 24px 0 12px 0;
+    padding-bottom: 6px;
+    border-bottom: 2px solid #e2e8f0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    page-break-after: avoid;
+    letter-spacing: -0.01em;
+  }
+
+  h2 .sec-num {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    background: #0284c7;
+    color: #ffffff;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 700;
+  }
+
+  h3 {
+    font-size: 14px;
+    font-weight: 700;
+    color: #1e293b;
+    margin: 16px 0 8px 0;
+    page-break-after: avoid;
+  }
+
+  p {
+    margin: 0 0 10px 0;
+    color: #334155;
+  }
+
+  ul, ol {
+    margin: 0 0 12px 0;
+    padding-left: 20px;
+    color: #334155;
+  }
+
+  li {
+    margin-bottom: 4px;
+  }
+
+  /* Architectural Diagram Box */
+  .arch-diagram-box {
+    background: #0b111e;
+    color: #f8fafc;
+    border-radius: 10px;
+    padding: 16px;
+    margin: 14px 0 20px 0;
+    border: 1px solid #1e293b;
+    page-break-inside: avoid;
+  }
+
+  .diagram-grid {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr auto 1fr;
+    gap: 8px;
+    align-items: center;
+    text-align: center;
+  }
+
+  .diagram-node {
+    background: #141c2e;
+    border: 1px solid #334155;
+    border-radius: 8px;
+    padding: 10px;
+    font-size: 11px;
+  }
+
+  .diagram-node.highlight {
+    border-color: #38bdf8;
+    background: #0f233f;
+  }
+
+  .diagram-node.accent {
+    border-color: #3b82f6;
+    background: #112240;
+  }
+
+  .diagram-node h4 {
+    margin: 0 0 4px 0;
+    font-size: 12px;
+    font-weight: 700;
+    color: #38bdf8;
+  }
+
+  .diagram-node ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    font-size: 10px;
+    color: #94a3b8;
+    text-align: left;
+  }
+
+  .diagram-node ul li {
+    margin-bottom: 2px;
+  }
+
+  .diagram-arrow {
+    font-size: 14px;
+    color: #38bdf8;
+    font-weight: bold;
+  }
+
+  /* Tables */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 12px 0 18px 0;
+    font-size: 11.5px;
+    page-break-inside: avoid;
+  }
+
+  th {
+    background: #0f172a;
+    color: #ffffff;
+    font-weight: 600;
+    text-align: left;
+    padding: 7px 10px;
+    border: 1px solid #0f172a;
+  }
+
+  td {
+    padding: 6px 10px;
+    border: 1px solid #e2e8f0;
+    vertical-align: middle;
+  }
+
+  tr:nth-child(even) {
+    background-color: #f8fafc;
+  }
+
+  .badge-yes {
+    display: inline-block;
+    background: #dcfce7;
+    color: #15803d;
+    padding: 2px 7px;
+    border-radius: 4px;
+    font-weight: 700;
+    font-size: 10.5px;
+  }
+
+  .badge-no {
+    display: inline-block;
+    background: #f1f5f9;
+    color: #94a3b8;
+    padding: 2px 7px;
+    border-radius: 4px;
+    font-weight: 500;
+    font-size: 10.5px;
+  }
+
+  .badge-endpoint {
+    background: #e0f2fe;
+    color: #0369a1;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 600;
+  }
+
+  /* Code Block */
+  .code-block {
+    background: #0b111e;
+    color: #e2e8f0;
+    border-radius: 8px;
+    padding: 12px 14px;
+    font-family: 'JetBrains Mono', Consolas, Monaco, monospace;
+    font-size: 10.5px;
+    line-height: 1.45;
+    margin: 10px 0 14px 0;
+    border: 1px solid #1e293b;
+    page-break-inside: avoid;
+    white-space: pre;
+  }
+
+  /* Callout & Alert Boxes */
+  .alert-box {
+    border-left: 4px solid #0284c7;
+    background-color: #f0f9ff;
+    padding: 10px 14px;
+    border-radius: 0 8px 8px 0;
+    margin: 12px 0 16px 0;
+    font-size: 12px;
+    color: #0369a1;
+    page-break-inside: avoid;
+  }
+
+  .alert-box strong {
+    color: #075985;
+  }
+
+  .alert-disclaimer {
+    border-left: 4px solid #f59e0b;
+    background-color: #fffbeb;
+    color: #b45309;
+  }
+  .alert-disclaimer strong {
+    color: #92400e;
+  }
+
+  /* Roadmap Cards */
+  .phase-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin: 12px 0 16px 0;
+  }
+
+  .phase-card {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 12px 14px;
+    page-break-inside: avoid;
+  }
+
+  .phase-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 6px;
+    padding-bottom: 4px;
+    border-bottom: 1px solid #e2e8f0;
+  }
+
+  .phase-title {
+    font-weight: 700;
+    font-size: 12.5px;
+    color: #0f172a;
+  }
+
+  .phase-badge {
+    background: #0284c7;
+    color: #ffffff;
+    font-size: 9.5px;
+    font-weight: 700;
+    padding: 2px 6px;
+    border-radius: 4px;
+    text-transform: uppercase;
+  }
+
+  .phase-card ul {
+    margin: 0;
+    padding-left: 16px;
+    font-size: 11px;
+    color: #475569;
+  }
+
+  .page-break {
+    page-break-before: always;
+  }
+
+  .footer-note {
+    margin-top: 24px;
+    padding-top: 10px;
+    border-top: 1px solid #e2e8f0;
+    display: flex;
+    justify-content: space-between;
+    font-size: 10px;
+    color: #94a3b8;
+  }
+</style>
+</head>
+<body>
+
+  <!-- Cover Header -->
+  <div class="header-card">
+    <div class="badge-top"><span class="pulse-dot"></span> HYDERABAD PROPERTY PRICE PREDICTION PLATFORM</div>
+    <div class="header-title">PropGPT — Comprehensive <span>Implementation Plan</span></div>
+    <div class="header-subtitle">
+      Architectural blueprint and technical specification for building a production-quality, responsive React frontend integrated with an LLM conversational orchestrator and three independent R Plumber machine learning prediction models.
+    </div>
+    <div class="header-meta">
+      <div class="header-meta-item">Focus City: <strong>Hyderabad, Telangana, India</strong></div>
+      <div class="header-meta-item">Frontend: <strong>React 18 + Vite + Tailwind CSS</strong></div>
+      <div class="header-meta-item">ML Engine: <strong>R Plumber (Port :8000)</strong></div>
+      <div class="header-meta-item">LLM Backend: <strong>Ollama (Llama 3.1 8B)</strong></div>
+      <div class="header-meta-item">Version: <strong>1.0.0</strong></div>
+    </div>
+  </div>
+
+  <!-- Section 1 -->
+  <h2><span class="sec-num">1</span> Executive Summary & System Architecture</h2>
+  <p>
+    <strong>PropGPT</strong> combines a cinematic real-estate aesthetic with conversational AI and trained statistical/machine learning models. Users can interact via two complementary paths: a <em>ChatGPT-inspired conversational interface</em> with slot-filling extraction, and a <em>structured manual prediction form</em> for deterministic property valuation.
+  </p>
+
+  <div class="arch-diagram-box">
+    <div style="font-size: 11px; font-weight: 700; color: #94a3b8; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.05em;">End-to-End System Data Flow</div>
+    <div class="diagram-grid">
+      <div class="diagram-node highlight">
+        <h4>User Interface (React)</h4>
+        <ul>
+          <li>• Hero Skyline Video Layer</li>
+          <li>• Conversational Chat Drawer</li>
+          <li>• Manual 3-Tab Prediction Form</li>
+          <li>• Indian Currency Result Cards</li>
+        </ul>
+      </div>
+
+      <div class="diagram-arrow">⇄</div>
+
+      <div class="diagram-node accent">
+        <h4>LLM Orchestrator</h4>
+        <ul>
+          <li>• Ollama / Llama 3.1 8B</li>
+          <li>• Intent &amp; Entity Extraction</li>
+          <li>• Interactive Slot Filling</li>
+          <li>• JSON Schema Validation</li>
+        </ul>
+      </div>
+
+      <div class="diagram-arrow">➔</div>
+
+      <div class="diagram-node">
+        <h4>R Plumber ML API (:8000)</h4>
+        <ul>
+          <li>• <code>POST /predict/flat</code></li>
+          <li>• <code>POST /predict/house</code></li>
+          <li>• <code>POST /predict/rent</code></li>
+          <li>• 3 Saved <code>.rds</code> ML Models</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="alert-box">
+    <strong>Architectural Boundary Guarantee:</strong> The React frontend does not call the R Plumber prediction endpoints directly from the LLM conversation flow. The orchestration backend strictly validates the extracted JSON payload before invoking Plumber, preventing invalid requests or hallucinated prediction figures. The manual form calls Plumber through a centralized API service layer.
+  </div>
+
+  <!-- Section 2 -->
+  <h2><span class="sec-num">2</span> Visual Identity & Design System</h2>
+  <p>
+    The visual direction follows a modern, dark, high-trust real estate technology aesthetic, inspired by Financial District and HITEC City skylines. Exaggerated glowing effects, floating AI particles, and generic AI templates are avoided in favor of restrained glassmorphism and clean typography.
+  </p>
+
+  <table>
+    <thead>
+      <tr>
+        <th style="width: 25%;">Design Token</th>
+        <th style="width: 25%;">Color / Value</th>
+        <th style="width: 50%;">Usage &amp; Implementation Details</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Primary Background</strong></td>
+        <td><code>#0B111E</code> (Dark Navy)</td>
+        <td>Base viewport color, footer background, and deep container base.</td>
+      </tr>
+      <tr>
+        <td><strong>Surface / Card</strong></td>
+        <td><code>#141C2E</code> (Charcoal Navy)</td>
+        <td>Chat panel, manual form cards, and result containers.</td>
+      </tr>
+      <tr>
+        <td><strong>Accent Colors</strong></td>
+        <td><code>#38BDF8</code> (Sky Cyan) &amp; <code>#2563EB</code> (Cobalt)</td>
+        <td>Interactive buttons, active tab indicators, icons, and keyword highlights.</td>
+      </tr>
+      <tr>
+        <td><strong>Typography</strong></td>
+        <td>Inter / Plus Jakarta Sans</td>
+        <td>High-contrast, clean legibility across numeric property specs and text.</td>
+      </tr>
+      <tr>
+        <td><strong>Glassmorphism</strong></td>
+        <td><code>backdrop-blur-md bg-[#141C2E]/70 border-white/10</code></td>
+        <td>Subtle translucent elevation for the chat box, navbar, and cards.</td>
+      </tr>
+      <tr>
+        <td><strong>Skyline Video</strong></td>
+        <td><code>public/videos/hyderabad-skyline.mp4</code></td>
+        <td>Full-screen muted loop with dark navy gradient overlay (contrast guarantee).</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- Page Break for Clean Printing -->
+  <div class="page-break"></div>
+
+  <!-- Section 3 -->
+  <h2><span class="sec-num">3</span> Project Directory & Component Hierarchy</h2>
+  <p>The frontend codebase is organized into modular components, services, and utility helpers:</p>
+
+  <div class="code-block">PropGPT/
+├── frontend/
+│   ├── public/
+│   │   ├── videos/hyderabad-skyline.mp4       # Hyderabad skyline video loop
+│   │   ├── images/skyline-poster.webp         # Video loading fallback poster
+│   │   └── favicon.ico
+│   ├── src/
+│   │   ├── components/
+│   │   │   ├── common/Navbar.jsx              # Frosted navbar with brand & anchors
+│   │   │   ├── common/Footer.jsx              # Tech stack attribution & disclaimer
+│   │   │   ├── common/FormControls.jsx        # Custom Select, Slider, Input, Tooltip
+│   │   │   ├── hero/HeroSection.jsx           # Location indicator, title, subtitle
+│   │   │   ├── hero/BackgroundVideo.jsx       # Viewport video with navy overlay
+│   │   │   ├── hero/SuggestionCards.jsx       # 4 prompt starter cards
+│   │   │   ├── chat/ChatInput.jsx             # Auto-resizing textarea, mic, send
+│   │   │   ├── chat/ChatInterface.jsx         # Conversation drawer & message stream
+│   │   │   ├── chat/MessageBubble.jsx         # User & PropGPT message wrappers
+│   │   │   ├── chat/PredictionCard.jsx        # Structured result display (INR formatted)
+│   │   │   ├── manual-form/ManualPredictionForm.jsx # Segmented 3-tab container
+│   │   │   ├── manual-form/FlatForm.jsx       # Flat Purchase inputs (Model 1)
+│   │   │   ├── manual-form/HouseForm.jsx      # House Purchase inputs (Model 2)
+│   │   │   ├── manual-form/RentForm.jsx       # Monthly Rental inputs (Model 3)
+│   │   │   └── sections/HowItWorks.jsx        # 4-step workflow cards
+│   │   │   └── sections/WhyPropGPT.jsx        # Value propositions & credibility
+│   │   │   └── sections/AboutSection.jsx      # Methodology & ML background
+│   │   ├── services/
+│   │   │   ├── plumberApi.js                  # Axios client for R Plumber (:8000)
+│   │   │   └── chatApi.js                     # Ollama / Orchestration backend API
+│   │   ├── utils/
+│   │   │   ├── formatters.js                  # INR Lakh/Crore and rate/sq.ft helpers
+│   │   │   └── validators.js                  # Form validation schemas
+│   │   ├── constants/localities.js            # Hyderabad localities list
+│   │   ├── App.jsx / main.jsx / index.css     # Master layout & Tailwind tokens
+│   ├── .env.example                           # VITE_PLUMBER_API_URL=http://127.0.0.1:8000
+│   └── package.json</div>
+
+  <!-- Section 4 -->
+  <h2><span class="sec-num">4</span> ML Models & Dynamic Manual Form Specifications</h2>
+  <p>
+    The platform serves three independent trained R machine learning models. The manual form features a 3-tab switcher and conditionally renders only the fields relevant to each model:
+  </p>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Attribute / Field</th>
+        <th>Field Type &amp; Permitted Values</th>
+        <th style="text-align: center;">Model 1: Flat</th>
+        <th style="text-align: center;">Model 2: House</th>
+        <th style="text-align: center;">Model 3: Rent</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Locality</strong></td>
+        <td>Dropdown (Kokapet, Gachibowli, HITEC City, etc.)</td>
+        <td style="text-align: center;"><span class="badge-yes">Required</span></td>
+        <td style="text-align: center;"><span class="badge-yes">Required</span></td>
+        <td style="text-align: center;"><span class="badge-yes">Required</span></td>
+      </tr>
+      <tr>
+        <td><strong>Property Area (sq. ft.)</strong></td>
+        <td>Number input (&gt; 100 sq.ft.)</td>
+        <td style="text-align: center;"><span class="badge-yes">Required</span></td>
+        <td style="text-align: center;"><span class="badge-yes">Required</span></td>
+        <td style="text-align: center;"><span class="badge-yes">Required</span></td>
+      </tr>
+      <tr>
+        <td><strong>BHK</strong></td>
+        <td>Select / Stepper (1, 2, 3, 4, 5+)</td>
+        <td style="text-align: center;"><span class="badge-yes">Required</span></td>
+        <td style="text-align: center;"><span class="badge-yes">Required</span></td>
+        <td style="text-align: center;"><span class="badge-yes">Required</span></td>
+      </tr>
+      <tr>
+        <td><strong>Bathrooms &amp; Balconies</strong></td>
+        <td>Numeric Steppers (Baths: 1–6, Balconies: 0–4)</td>
+        <td style="text-align: center;"><span class="badge-yes">Required</span></td>
+        <td style="text-align: center;"><span class="badge-yes">Required</span></td>
+        <td style="text-align: center;"><span class="badge-yes">Required</span></td>
+      </tr>
+      <tr>
+        <td><strong>Furnishing</strong></td>
+        <td>Select (Furnished, Semi-Furnished, Unfurnished)</td>
+        <td style="text-align: center;"><span class="badge-yes">Required</span></td>
+        <td style="text-align: center;"><span class="badge-yes">Required</span></td>
+        <td style="text-align: center;"><span class="badge-yes">Required</span></td>
+      </tr>
+      <tr>
+        <td><strong>Area Source</strong></td>
+        <td>Select (Super Built-up, Carpet Area, Built-up)</td>
+        <td style="text-align: center;"><span class="badge-yes">Required</span></td>
+        <td style="text-align: center;"><span class="badge-yes">Required</span></td>
+        <td style="text-align: center;"><span class="badge-yes">Required</span></td>
+      </tr>
+      <tr>
+        <td><strong>Transaction Type</strong></td>
+        <td>Select (New Booking, Resale)</td>
+        <td style="text-align: center;"><span class="badge-yes">Required</span></td>
+        <td style="text-align: center;"><span class="badge-yes">Required</span></td>
+        <td style="text-align: center;"><span class="badge-no">Not Used</span></td>
+      </tr>
+      <tr>
+        <td><strong>Property Floor &amp; Total Floors</strong></td>
+        <td>Number inputs (Property Floor &le; Total Floors)</td>
+        <td style="text-align: center;"><span class="badge-no">Not Used</span></td>
+        <td style="text-align: center;"><span class="badge-yes">Required</span></td>
+        <td style="text-align: center;"><span class="badge-yes">Required</span></td>
+      </tr>
+      <tr>
+        <td><strong>Ownership</strong></td>
+        <td>Select (Freehold, Leasehold, Co-operative)</td>
+        <td style="text-align: center;"><span class="badge-no">Not Used</span></td>
+        <td style="text-align: center;"><span class="badge-yes">Required</span></td>
+        <td style="text-align: center;"><span class="badge-no">Not Used</span></td>
+      </tr>
+      <tr>
+        <td><strong>Facing</strong></td>
+        <td>Select (East, West, North, South, North-East, etc.)</td>
+        <td style="text-align: center;"><span class="badge-no">Not Used</span></td>
+        <td style="text-align: center;"><span class="badge-yes">Required</span></td>
+        <td style="text-align: center;"><span class="badge-no">Not Used</span></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- Page Break for Clean Printing -->
+  <div class="page-break"></div>
+
+  <!-- Section 5 -->
+  <h2><span class="sec-num">5</span> Conversational AI &amp; Backend API Integration</h2>
+  
+  <h3>Conversational AI Flow</h3>
+  <ol>
+    <li><strong>User Query:</strong> User types natural-language inquiry (e.g. <em>"I want to buy a 3 BHK flat in Kokapet around 1800 sq ft"</em>) or clicks a suggested prompt card.</li>
+    <li><strong>Intent Extraction:</strong> LLM orchestrator recognizes <code>FLAT_PURCHASE</code> intent and extracts slots: <code>{ locality: "Kokapet", bhk: 3, area: 1800 }</code>.</li>
+    <li><strong>Slot Validation &amp; Follow-up:</strong> If required fields are missing (e.g. <code>furnishing</code>), the LLM queries the user interactively.</li>
+    <li><strong>Execution:</strong> Once all required attributes are gathered, the orchestrator issues a POST request to R Plumber.</li>
+    <li><strong>Structured Response:</strong> The prediction returned by Plumber is rendered using the custom <code>PredictionCard</code> inside the chat stream.</li>
+  </ol>
+
+  <h3>R Plumber API Contracts</h3>
+  <table>
+    <thead>
+      <tr>
+        <th>Endpoint</th>
+        <th>Method</th>
+        <th>Payload Schema (JSON)</th>
+        <th>Sample Response</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="badge-endpoint">/predict/flat</span></td>
+        <td><code>POST</code></td>
+        <td><code>{ area, bhk, locality, furnishing, transaction_type, area_source, bathrooms, balconies }</code></td>
+        <td><code>{ "predicted_price": 18500000, "status": "success" }</code></td>
+      </tr>
+      <tr>
+        <td><span class="badge-endpoint">/predict/house</span></td>
+        <td><code>POST</code></td>
+        <td><code>{ area, bhk, locality, furnishing, transaction_type, area_source, bathrooms, balconies, ownership, facing, property_floor, total_floors }</code></td>
+        <td><code>{ "predicted_price": 34000000, "status": "success" }</code></td>
+      </tr>
+      <tr>
+        <td><span class="badge-endpoint">/predict/rent</span></td>
+        <td><code>POST</code></td>
+        <td><code>{ area, bhk, locality, furnishing, area_source, bathrooms, balconies, property_floor, total_floors }</code></td>
+        <td><code>{ "predicted_rent": 42000, "status": "success" }</code></td>
+      </tr>
+      <tr>
+        <td><span class="badge-endpoint">/health</span></td>
+        <td><code>GET</code></td>
+        <td>None</td>
+        <td><code>{ "status": "healthy", "models_loaded": 3 }</code></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>Prediction Result Card Specification</h3>
+  <p>Every prediction result (whether via Chat or Manual Form) is presented with high-trust financial formatting:</p>
+  <ul>
+    <li><strong>Indian Numbering Format:</strong> Values $\ge 1\text{ Crore}$ are formatted as <code>₹ X.XX Cr</code>; values $\ge 1\text{ Lakh}$ as <code>₹ XX.X Lakh</code>; rent as <code>₹ XX,XXX / month</code>.</li>
+    <li><strong>Calculated Price Per Sq.Ft:</strong> Calculated deterministically as <code>price / area</code> (e.g., <code>₹ 10,277 / sq.ft</code>).</li>
+    <li><strong>Property Specifications Pill Bar:</strong> Badges for Locality, BHK, Area, Floor, and Furnishing status.</li>
+  </ul>
+
+  <div class="alert-box alert-disclaimer">
+    <strong>Mandatory Statutory Disclaimer:</strong><br>
+    "PropGPT provides machine learning-based estimates for informational purposes. These estimates are not certified property valuations or guaranteed market prices."
+  </div>
+
+  <!-- Section 6 -->
+  <h2><span class="sec-num">6</span> Phased Implementation Roadmap</h2>
+  <div class="phase-grid">
+    <div class="phase-card">
+      <div class="phase-header">
+        <span class="phase-title">Phase 1: Foundation &amp; Design System</span>
+        <span class="phase-badge">Sprint 1</span>
+      </div>
+      <ul>
+        <li>Initialize React + Vite + Tailwind CSS project</li>
+        <li>Configure color tokens, glassmorphism, fonts</li>
+        <li>Integrate Hyderabad skyline video loop &amp; poster</li>
+        <li>Build responsive Navbar with brand logo</li>
+      </ul>
+    </div>
+
+    <div class="phase-card">
+      <div class="phase-header">
+        <span class="phase-title">Phase 2: Hero &amp; Conversational Panel</span>
+        <span class="phase-badge">Sprint 1-2</span>
+      </div>
+      <ul>
+        <li>Implement Hero typography and location badge</li>
+        <li>Build auto-resizing ChatInput with action buttons</li>
+        <li>Add 4 clickable suggestion prompt cards</li>
+        <li>Implement ChatInterface drawer and state transitions</li>
+      </ul>
+    </div>
+
+    <div class="phase-card">
+      <div class="phase-header">
+        <span class="phase-title">Phase 3: Structured Manual Form</span>
+        <span class="phase-badge">Sprint 2</span>
+      </div>
+      <ul>
+        <li>Create 3-tab switcher (Flat, House, Rent)</li>
+        <li>Dynamic field matrix with client-side validation</li>
+        <li>Build centralized Plumber API service client</li>
+        <li>Design INR currency formatted PredictionCard</li>
+      </ul>
+    </div>
+
+    <div class="phase-card">
+      <div class="phase-header">
+        <span class="phase-title">Phase 4: LLM Orchestrator Bridge</span>
+        <span class="phase-badge">Sprint 3</span>
+      </div>
+      <ul>
+        <li>Connect chat interface to Ollama / Llama 3.1 8B</li>
+        <li>Implement structured JSON slot-filling prompts</li>
+        <li>Embed interactive prediction cards in chat stream</li>
+        <li>Handle error states, timeouts, and network retries</li>
+      </ul>
+    </div>
+
+    <div class="phase-card" style="grid-column: span 2;">
+      <div class="phase-header">
+        <span class="phase-title">Phase 5: Supporting Sections, Cross-Device Polish &amp; Acceptance Testing</span>
+        <span class="phase-badge">Sprint 3-4</span>
+      </div>
+      <ul>
+        <li>Build <em>How It Works</em> (4-step cards), <em>Why PropGPT</em>, <em>About Section</em>, and <em>Footer</em></li>
+        <li>Perform mobile, tablet, and ultra-wide layout audit to ensure zero visual degradation</li>
+        <li>Ensure keyboard accessibility (tab navigation, Enter-to-submit) and contrast compliance</li>
+        <li>Verify end-to-end against live R Plumber API (:8000)</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="footer-note">
+    <span>PropGPT — Hyderabad Real Estate Price Prediction Platform</span>
+    <span>Technical Implementation &amp; Architecture Specification</span>
+    <span>October 2026</span>
+  </div>
+
+</body>
+</html>

@@ -1,0 +1,3 @@
+# PropGPT Backend Environment Configuration
+# Sign up at https://build.nvidia.com to obtain your Nemotron API key
+NVIDIA_API_KEY="your_nvidia_nemotron_api_key_here"
