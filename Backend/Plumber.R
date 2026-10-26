@@ -42,9 +42,12 @@ library(jsonlite)
 
 # Helper to set all CORS headers on response
 set_cors_headers <- function(req, res) {
-  origin <- req$HTTP_ORIGIN
-  if (is.null(origin) || !nzchar(origin)) {
-    origin <- req$HEADERS[["origin"]]
+  origin <- if (!is.null(req$HTTP_ORIGIN) && nzchar(req$HTTP_ORIGIN)) {
+    req$HTTP_ORIGIN
+  } else if (!is.null(req$HEADERS) && "origin" %in% names(req$HEADERS)) {
+    req$HEADERS[["origin"]]
+  } else {
+    NULL
   }
   
   # Allow all localhost/127.0.0.1 origins (any port), or any origin in CORS_ORIGINS

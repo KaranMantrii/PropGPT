@@ -1,6 +1,26 @@
 library(stringr)
 library(dplyr)
 library(ranger)
+
+find_model_file <- function(filename) {
+  candidates <- c(
+    file.path("models", filename),
+    file.path("Backend", "models", filename),
+    file.path("..", "models", filename),
+    file.path("..", "Backend", "models", filename)
+  )
+  found <- candidates[file.exists(candidates)]
+  if (length(found) > 0) return(found[1])
+  stop(paste("Model file not found:", filename))
+}
+
+if (!exists("rf_model3", envir = .GlobalEnv) || is.null(get("rf_model3", envir = .GlobalEnv))) {
+  assign("rf_model3", readRDS(find_model_file("rf_model3.rds")), envir = .GlobalEnv)
+}
+if (!exists("loc_map_house", envir = .GlobalEnv) || is.null(get("loc_map_house", envir = .GlobalEnv))) {
+  assign("loc_map_house", readRDS(find_model_file("loc_map_house.rds")), envir = .GlobalEnv)
+}
+
 # ============================================================
 # HOUSE PRICE PREDICTOR — 3-input demo-style (suffix 3)
 # ============================================================
@@ -160,14 +180,22 @@ pred_house <- function(
   # ============================================================
   # Align to pred_vars3
   # ============================================================
-  keep <- intersect(names(ndata), pred_vars3)
+  target_vars <- if (exists("pred_vars3", envir = .GlobalEnv)) {
+    get("pred_vars3", envir = .GlobalEnv)
+  } else if (!is.null(model$forest$independent.variable.names)) {
+    model$forest$independent.variable.names
+  } else {
+    rf_model3$forest$independent.variable.names
+  }
+
+  keep <- intersect(names(ndata), target_vars)
   ndata <- ndata[, keep, drop = FALSE]
   
-  missing_cols <- setdiff(pred_vars3, names(ndata))
+  missing_cols <- setdiff(target_vars, names(ndata))
   if (length(missing_cols) > 0) {
     for (m in missing_cols) ndata[[m]] <- 0
   }
-  ndata <- ndata[, pred_vars3, drop = FALSE]
+  ndata <- ndata[, target_vars, drop = FALSE]
   
   # ============================================================
   # Predict

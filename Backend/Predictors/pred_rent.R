@@ -1,6 +1,26 @@
 library(stringr)
 library(dplyr)
 library(ranger)
+
+find_model_file <- function(filename) {
+  candidates <- c(
+    file.path("models", filename),
+    file.path("Backend", "models", filename),
+    file.path("..", "models", filename),
+    file.path("..", "Backend", "models", filename)
+  )
+  found <- candidates[file.exists(candidates)]
+  if (length(found) > 0) return(found[1])
+  stop(paste("Model file not found:", filename))
+}
+
+if (!exists("rf_model4", envir = .GlobalEnv) || is.null(get("rf_model4", envir = .GlobalEnv))) {
+  assign("rf_model4", readRDS(find_model_file("rf_model4.rds")), envir = .GlobalEnv)
+}
+if (!exists("loc_map4", envir = .GlobalEnv) || is.null(get("loc_map4", envir = .GlobalEnv))) {
+  assign("loc_map4", readRDS(find_model_file("loc_map4.rds")), envir = .GlobalEnv)
+}
+
 pred_rent <- function(
     query_area,
     query_bhk,
@@ -150,14 +170,22 @@ pred_rent <- function(
   # ============================================================
   # Align to pred_vars4
   # ============================================================
-  keep <- intersect(names(ndata), pred_vars4)
+  target_vars <- if (exists("pred_vars4", envir = .GlobalEnv)) {
+    get("pred_vars4", envir = .GlobalEnv)
+  } else if (!is.null(model$forest$independent.variable.names)) {
+    model$forest$independent.variable.names
+  } else {
+    rf_model4$forest$independent.variable.names
+  }
+
+  keep <- intersect(names(ndata), target_vars)
   ndata <- ndata[, keep, drop = FALSE]
   
-  missing_cols <- setdiff(pred_vars4, names(ndata))
+  missing_cols <- setdiff(target_vars, names(ndata))
   if (length(missing_cols) > 0) {
     for (m in missing_cols) ndata[[m]] <- 0
   }
-  ndata <- ndata[, pred_vars4, drop = FALSE]
+  ndata <- ndata[, target_vars, drop = FALSE]
   
   # ============================================================
   # Predict

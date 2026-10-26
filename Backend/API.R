@@ -19,8 +19,13 @@ api$setSerializer(serializer_json(auto_unbox = TRUE, null = "null", na = "null")
 # Ensure CORS headers are attached on all unhandled errors (500) and 404s
 # so the browser never masks errors as CORS rejections
 api$setErrorHandler(function(req, res, err) {
-  origin <- req$HTTP_ORIGIN
-  if (is.null(origin) || !nzchar(origin)) origin <- req$HEADERS[["origin"]]
+  origin <- if (!is.null(req$HTTP_ORIGIN) && nzchar(req$HTTP_ORIGIN)) {
+    req$HTTP_ORIGIN
+  } else if (!is.null(req$HEADERS) && "origin" %in% names(req$HEADERS)) {
+    req$HEADERS[["origin"]]
+  } else {
+    NULL
+  }
   
   res$setHeader("Access-Control-Allow-Origin", if (!is.null(origin) && nzchar(origin)) origin else "*")
   res$setHeader("Access-Control-Allow-Credentials", "true")
@@ -37,8 +42,13 @@ api$setErrorHandler(function(req, res, err) {
 })
 
 api$set404Handler(function(req, res) {
-  origin <- req$HTTP_ORIGIN
-  if (is.null(origin) || !nzchar(origin)) origin <- req$HEADERS[["origin"]]
+  origin <- if (!is.null(req$HTTP_ORIGIN) && nzchar(req$HTTP_ORIGIN)) {
+    req$HTTP_ORIGIN
+  } else if (!is.null(req$HEADERS) && "origin" %in% names(req$HEADERS)) {
+    req$HEADERS[["origin"]]
+  } else {
+    NULL
+  }
   
   res$setHeader("Access-Control-Allow-Origin", if (!is.null(origin) && nzchar(origin)) origin else "*")
   res$setHeader("Access-Control-Allow-Credentials", "true")

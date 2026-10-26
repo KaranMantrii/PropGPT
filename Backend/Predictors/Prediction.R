@@ -2,16 +2,29 @@
 library(dplyr)
 library(xgboost)
 
-# Ensure required model and mapping objects are loaded in environment
-if (!exists("xgb_model") || !exists("loc_map") || !exists("global_mean")) {
-  if (file.exists(".RData")) {
-    load(".RData")
-  } else if (file.exists("Backend/.RData")) {
-    load("Backend/.RData")
-  } else if (file.exists("../.RData")) {
-    load("../.RData")
-  }
+find_model_file <- function(filename) {
+  candidates <- c(
+    file.path("models", filename),
+    file.path("Backend", "models", filename),
+    file.path("..", "models", filename),
+    file.path("..", "Backend", "models", filename)
+  )
+  found <- candidates[file.exists(candidates)]
+  if (length(found) > 0) return(found[1])
+  stop(paste("Model file not found:", filename))
 }
+
+# Ensure required model and mapping objects are loaded from clean RDS files
+if (!exists("xgb_model", envir = .GlobalEnv) || is.null(get("xgb_model", envir = .GlobalEnv))) {
+  assign("xgb_model", readRDS(find_model_file("xgb_model.rds")), envir = .GlobalEnv)
+}
+if (!exists("loc_map", envir = .GlobalEnv) || is.null(get("loc_map", envir = .GlobalEnv))) {
+  assign("loc_map", readRDS(find_model_file("loc_map.rds")), envir = .GlobalEnv)
+}
+if (!exists("global_mean", envir = .GlobalEnv) || is.null(get("global_mean", envir = .GlobalEnv))) {
+  assign("global_mean", readRDS(find_model_file("global_mean.rds")), envir = .GlobalEnv)
+}
+
 
 pred_price_flat <- function(
     query_area,
