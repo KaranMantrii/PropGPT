@@ -43,7 +43,12 @@ library(jsonlite)
 #* Enable CORS for frontend access
 #* @filter cors
 cors <- function(req, res) {
-  res$setHeader("Access-Control-Allow-Origin", "*")
+  allowed <- strsplit(Sys.getenv("CORS_ORIGINS", "http://127.0.0.1:5173,http://localhost:5173"), ",", fixed = TRUE)[[1]]
+  origin <- req$HTTP_ORIGIN
+  if (!is.null(origin) && origin %in% trimws(allowed)) {
+    res$setHeader("Access-Control-Allow-Origin", origin)
+    res$setHeader("Vary", "Origin")
+  }
   res$setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
   res$setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization, Accept, Origin, User-Agent")
   
@@ -53,6 +58,62 @@ cors <- function(req, res) {
   }
   
   plumber::forward()
+}
+
+#* Validate direct predictions with the same schema used by conversations.
+#* @filter prediction_validation
+function(req, res) {
+  intents <- c("/predict/flat" = "flat_purchase", "/predict/house" = "house_purchase", "/predict/rent" = "rent")
+  if (!req$PATH_INFO %in% names(intents) || req$REQUEST_METHOD != "POST") return(plumber::forward())
+  body <- req$body
+  if (is.null(body) && !is.null(req$postBody)) {
+    body <- tryCatch(jsonlite::fromJSON(req$postBody, simplifyVector = FALSE), error = function(e) NULL)
+  }
+  if (!is.list(body) || is.null(names(body))) {
+    res$status <- 400
+    return(list(success = FALSE, error = "Send a JSON object with property details."))
+  }
+  if (!is.null(body$session_id) && (!is.character(body$session_id) || length(body$session_id) != 1 ||
+      is.na(body$session_id) || !grepl("^[A-Za-z0-9_-]{1,128}$", body$session_id))) {
+    res$status <- 400
+    return(list(success = FALSE, error = "A valid session_id is required."))
+  }
+  property <- empty_extraction()
+  property$intent <- unname(intents[[req$PATH_INFO]])
+  mapping <- c(query_area = "area", query_bhk = "bhk", query_locality = "locality",
+    query_Furnishing = "furnishing", query_furnishing = "furnishing",
+    query_Transaction = "transaction", query_transaction = "transaction",
+    query_area_source = "area_source", query_Bathroom = "bathroom", query_bathroom = "bathroom",
+    query_Balcony = "balcony", query_balcony = "balcony", query_ownership = "ownership",
+    query_facing = "facing", query_buy_floor = "buy_floor", query_total_floors = "total_floors")
+  for (key in intersect(names(body), names(mapping))) property[mapping[[key]]] <- list(body[[key]])
+  validation <- tryCatch(validate_property(property), error = function(e) NULL)
+  if (is.null(validation) || !isTRUE(validation$ready_for_prediction)) {
+    res$status <- 400
+    return(list(success = FALSE, error = if (is.null(validation)) "Invalid property details." else
+      paste(c(validation$errors, if (length(validation$missing_fields)) paste("Missing:", paste(validation$missing_fields, collapse = ", "))), collapse = " ")))
+  }
+  for (key in intersect(names(body), names(mapping))) body[key] <- list(validation$data[[mapping[[key]]]])
+  req$validated_body <- body
+  req$validated_property <- validation$data
+  plumber::forward()
+}
+
+# Retain manual estimates in the existing conversation store so explaining a
+# completed valuation does not execute its model again.
+record_manual_prediction <- function(req, prediction) {
+  id <- req$validated_body$session_id
+  if (is.null(id)) return(NULL)
+  property <- resolve_prediction_defaults(req$validated_property)
+  create_conversation_session(id)
+  session <- get_conversation_session(id)
+  session$property <- property
+  session$optional_fields_asked <- TRUE
+  session$stage <- "completed"
+  session$last_prediction <- list(success = TRUE, intent = property$intent, prediction = prediction, property = property)
+  session$last_market_context <- get_market_context(property$intent, property, PROPGPT_MARKET_DATA)
+  PROPGPT_SESSIONS[[id]] <- session
+  id
 }
 
 # Load your prediction function and model dependencies.
@@ -81,7 +142,7 @@ function() {
 #* @parser json
 function(req, res) {
   
-  body <- req$body
+  body <- if (!is.null(req$validated_body)) req$validated_body else req$body
   
   # 1. Normalize request body
   if (is.raw(body)) {
@@ -255,7 +316,7 @@ function(req, res) {
     return(list(
       success = FALSE,
       error = "Flat prediction failed.",
-      details = err_msg
+      details = "The valuation model is temporarily unavailable. Please try again."
     ))
   }
   
@@ -263,6 +324,7 @@ function(req, res) {
   list(
     success = TRUE,
     prediction_type = "flat_price",
+    session_id = record_manual_prediction(req, result),
     predicted_price = result,
     currency = "INR"
   )
@@ -279,7 +341,7 @@ function(req, res) {
 #* @parser json
 function(req, res) {
   
-  body <- req$body
+  body <- if (!is.null(req$validated_body)) req$validated_body else req$body
   
   # Validate JSON body
   if (is.null(body) || !is.list(body) || is.null(names(body))) {
@@ -377,6 +439,7 @@ function(req, res) {
   list(
     success = TRUE,
     prediction_type = "house_price",
+    session_id = record_manual_prediction(req, result),
     predicted_price = result,
     currency = "INR"
   )
@@ -393,7 +456,7 @@ function(req, res) {
 #* @parser json
 function(req, res) {
   
-  body <- req$body
+  body <- if (!is.null(req$validated_body)) req$validated_body else req$body
   
   # Validate JSON body
   if (is.null(body) || !is.list(body) || is.null(names(body))) {
@@ -488,6 +551,7 @@ function(req, res) {
   list(
     success = TRUE,
     prediction_type = "rent",
+    session_id = record_manual_prediction(req, result),
     predicted_price = result,
     currency = "INR",
     period = "monthly"
@@ -502,7 +566,7 @@ function(req, res) {
 #* @parser json
 function(req, res) {
   
-  body <- req$body
+  body <- if (!is.null(req$validated_body)) req$validated_body else req$body
   
   if (
     is.null(body) ||
@@ -525,7 +589,8 @@ function(req, res) {
     is.null(session_id) ||
     !is.character(session_id) ||
     length(session_id) != 1 ||
-    !nzchar(trimws(session_id))
+    is.na(session_id) ||
+    !grepl("^[A-Za-z0-9_-]{1,128}$", session_id)
   ) {
     
     res$status <- 400
@@ -540,7 +605,8 @@ function(req, res) {
     is.null(user_message) ||
     !is.character(user_message) ||
     length(user_message) != 1 ||
-    !nzchar(trimws(user_message))
+    is.na(user_message) ||
+    !nzchar(trimws(user_message)) || nchar(user_message) > 8000
   ) {
     
     res$status <- 400
@@ -576,6 +642,7 @@ function(req, res) {
     
   }
   
+  if (!is.null(result$error_code)) res$status <- 503
   result
   
 }

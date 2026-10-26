@@ -1,5 +1,7 @@
 # 🏙️ PropGPT — Conversational AI Property Valuation & Market Intelligence
 
+See [Integration architecture, implementation changes, API examples and verified tests](docs/INTEGRATION.md) for the current audited workflow and known limitations.
+
 [![React](https://img.shields.io/badge/Frontend-React%2018%20%2B%20Vite-61DAFB?logo=react&logoColor=black)](https://react.dev/)
 [![Tailwind CSS](https://img.shields.io/badge/Styling-Tailwind%20CSS-38BDF8?logo=tailwindcss&logoColor=white)](https://tailwindcss.com/)
 [![R](https://img.shields.io/badge/Backend-R%20%2B%20Plumber-276DC3?logo=r&logoColor=white)](https://www.r-project.org/)

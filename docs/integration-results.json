@@ -1,0 +1,460 @@
+{
+  "testedAt": "2026-10-26T05:02:48.474Z",
+  "records": [
+    {
+      "label": "HTTP health scalar contract",
+      "details": {}
+    },
+    {
+      "label": "HTTP flat model",
+      "details": {
+        "price": "88.36 Lac"
+      }
+    },
+    {
+      "label": "HTTP house model",
+      "details": {
+        "price": "1.73 Cr"
+      }
+    },
+    {
+      "label": "HTTP rent model",
+      "details": {
+        "price": "₹30,562"
+      }
+    },
+    {
+      "label": "HTTP validation rejects fractional bathrooms",
+      "details": {}
+    },
+    {
+      "label": "HTTP validation rejects invalid rent category",
+      "details": {}
+    },
+    {
+      "label": "manual estimate reused for AI explanation",
+      "details": {
+        "reply": "**Previous model estimate: 88.36 Lac**\n\n**Property:** 2 BHK in Kukatpally, 1200 sq.ft (Super).\n\nThe estimate uses the supplied property details and the trained valuation model. Advertised listings provide context; they do not establish the final negotiated price.\n\n**Listing evidence:** 11 matching locality listings; median asking price ₹10,500,000; middle half of listings ₹9,150,000–₹12,500,000; median ₹8,370 per sq.ft.\n\nThis is a model estimate, not a certified appraisal or guaranteed transaction price. Listing data may be historical. Actual prices vary with condition, amenities and negotiations.",
+        "prediction": null,
+        "property": {
+          "intent": "flat_purchase",
+          "area": 1200,
+          "bhk": 2,
+          "locality": "Kukatpally",
+          "furnishing": "Semi-Furnished",
+          "transaction": "Resale",
+          "area_source": "Super",
+          "bathroom": 2,
+          "balcony": 0,
+          "missing_fields": [],
+          "ready_for_prediction": true,
+          "reply": "",
+          "original_area": 1200,
+          "original_area_unit": "sqft",
+          "area_unit": "sqft",
+          "assumptions": []
+        },
+        "state": {
+          "stage": "completed",
+          "optional_fields_asked": true,
+          "prediction_ready": false,
+          "prediction_status": "information"
+        },
+        "market_status": "success"
+      }
+    },
+    {
+      "label": "live LLM missing required details",
+      "details": {
+        "reply": "Sure! How many bedrooms (BHK) are you looking for, and approximately how large should the property be (in sq ft)?",
+        "prediction": null,
+        "property": {
+          "intent": "flat_purchase",
+          "locality": "Kukatpally",
+          "missing_fields": [
+            "area",
+            "bhk"
+          ],
+          "ready_for_prediction": false,
+          "reply": ""
+        },
+        "state": {
+          "stage": "collect_required",
+          "prediction_status": "collecting",
+          "previous_prediction": null,
+          "required_fields": {
+            "query_area": null,
+            "query_bhk": null,
+            "query_locality": "Kukatpally"
+          },
+          "optional_fields": {
+            "query_Furnishing": null,
+            "query_Transaction": null,
+            "query_area_source": null,
+            "query_Bathroom": null,
+            "query_Balcony": null,
+            "query_ownership": null,
+            "query_facing": null,
+            "query_buy_floor": null,
+            "query_total_floors": null
+          },
+          "required_fields_complete": false,
+          "optional_fields_asked": false,
+          "prediction_ready": false
+        }
+      }
+    },
+    {
+      "label": "live LLM required details across turns",
+      "details": {
+        "reply": "Great! I've got the basic details of your property in Kukatpally (2 BHK  with approximately 1200 sqft). 🏡\n\nTo make the price prediction more accurate, could you share a few additional details?\n\n- **Furnishing:** Is it Unfurnished, Semi-Furnished, or Furnished?\n- **Property Type:** Is this a Resale property or a New Property?\n- **Area Measurement:** Is the 1200 sqft based on Carpet Area or Super Built-up Area?\n- **Bathrooms:** How many bathrooms does it have? (e.g., 1, 2, 3)\n- **Balconies:** How many balconies are available? (e.g., 0, 1, 2)\n\nYou can provide all the details together or just the ones you know. It's completely fine to skip anything you're unsure about!",
+        "prediction": null,
+        "property": {
+          "intent": "flat_purchase",
+          "locality": "Kukatpally",
+          "missing_fields": [],
+          "ready_for_prediction": true,
+          "reply": "",
+          "area": 1200,
+          "area_unit": "sqft",
+          "bhk": 2,
+          "original_area": 1200,
+          "original_area_unit": "sqft"
+        },
+        "state": {
+          "stage": "ask_optional",
+          "prediction_status": "collecting",
+          "previous_prediction": null,
+          "required_fields": {
+            "query_area": 1200,
+            "query_bhk": 2,
+            "query_locality": "Kukatpally"
+          },
+          "optional_fields": {
+            "query_Furnishing": null,
+            "query_Transaction": null,
+            "query_area_source": null,
+            "query_Bathroom": null,
+            "query_Balcony": null,
+            "query_ownership": null,
+            "query_facing": null,
+            "query_buy_floor": null,
+            "query_total_floors": null
+          },
+          "required_fields_complete": true,
+          "optional_fields_asked": true,
+          "prediction_ready": false
+        }
+      }
+    },
+    {
+      "label": "live LLM partial optional details",
+      "details": {
+        "reply": "**Model estimate: 95.96 Lac**\n\n**Property:** 2 BHK in Kukatpally, 1200 sq.ft (Carpet).\n\nThe model estimate for this semi‑furnished, two‑bathroom resale flat in Kukatpally sits above the median of the eight comparable listings, which are all carpet‑area two‑bedroom units in the same locality. Those comparables show a spread of asking prices, with some smaller, fully furnished units listed lower and a few larger or similarly sized semi‑furnished units listed higher. Because the sample consists only of advertised asking prices and not confirmed transactions, and because the subject property lacks balconies while most comparables include one or two, a precise like‑for‑like comparison cannot be established. The model’s figure should therefore be treated as an indicative reference rather than a definitive valuation.\n\n**Listing evidence:** 8 matching locality listings; median asking price ₹8,650,000; middle half of listings ₹8,300,000–₹9,700,000; median ₹8,640 per sq.ft.\n\n**Default assumptions:** Area basis: Carpet\n\nThis is a model estimate, not a certified appraisal or guaranteed transaction price. Listing data may be historical. Actual prices vary with condition, amenities and negotiations.",
+        "prediction": "95.96 Lac",
+        "property": {
+          "intent": "flat_purchase",
+          "locality": "Kukatpally",
+          "missing_fields": [],
+          "ready_for_prediction": true,
+          "reply": "",
+          "area": 1200,
+          "area_unit": "sqft",
+          "bhk": 2,
+          "original_area": 1200,
+          "original_area_unit": "sqft",
+          "furnishing": "Semi-Furnished",
+          "transaction": "Resale",
+          "bathroom": 2,
+          "balcony": 0,
+          "area_source": "Carpet",
+          "assumptions": "Area basis: Carpet"
+        },
+        "state": {
+          "stage": "completed",
+          "prediction_status": "completed",
+          "previous_prediction": "95.96 Lac",
+          "required_fields": {
+            "query_area": 1200,
+            "query_bhk": 2,
+            "query_locality": "Kukatpally"
+          },
+          "optional_fields": {
+            "query_Furnishing": "Semi-Furnished",
+            "query_Transaction": "Resale",
+            "query_area_source": "Carpet",
+            "query_Bathroom": 2,
+            "query_Balcony": 0,
+            "query_ownership": null,
+            "query_facing": null,
+            "query_buy_floor": null,
+            "query_total_floors": null
+          },
+          "required_fields_complete": true,
+          "optional_fields_asked": true,
+          "prediction_ready": true
+        },
+        "market_status": "success"
+      }
+    },
+    {
+      "label": "live LLM locality follow-up",
+      "details": {
+        "reply": "**Model estimate: 95.94 Lac**\n\n**Property:** 2 BHK in Miyapur, 1200 sq.ft (Carpet).\n\nThe model estimate for this semi‑furnished resale flat in Miyapur is derived from a set of eight comparable listings that share the same locality, bedroom count and carpet area. Those listings show a spread of asking prices and per‑square‑foot rates, reflecting differences in furnishing level, balcony count, facing direction and whether the unit is marketed as new or resale. Because the comparables are historical advertised prices rather than confirmed transactions, and because the subject property’s semi‑furnished status and lack of balconies are not perfectly matched in the sample, the estimate carries uncertainty. A detailed comparison cannot be established beyond the supplied evidence.\n\n**Listing evidence:** 37 matching locality listings; median asking price ₹10,000,000; middle half of listings ₹7,900,000–₹10,700,000; median ₹9,892 per sq.ft.\n\nThis is a model estimate, not a certified appraisal or guaranteed transaction price. Listing data may be historical. Actual prices vary with condition, amenities and negotiations.",
+        "prediction": "95.94 Lac",
+        "property": {
+          "intent": "flat_purchase",
+          "locality": "Miyapur",
+          "missing_fields": [],
+          "ready_for_prediction": true,
+          "reply": "",
+          "area": 1200,
+          "area_unit": "sqft",
+          "bhk": 2,
+          "original_area": 1200,
+          "original_area_unit": "sqft",
+          "furnishing": "Semi-Furnished",
+          "transaction": "Resale",
+          "bathroom": 2,
+          "balcony": 0,
+          "area_source": "Carpet",
+          "assumptions": []
+        },
+        "state": {
+          "stage": "completed",
+          "prediction_status": "completed",
+          "previous_prediction": "95.94 Lac",
+          "required_fields": {
+            "query_area": 1200,
+            "query_bhk": 2,
+            "query_locality": "Miyapur"
+          },
+          "optional_fields": {
+            "query_Furnishing": "Semi-Furnished",
+            "query_Transaction": "Resale",
+            "query_area_source": "Carpet",
+            "query_Bathroom": 2,
+            "query_Balcony": 0,
+            "query_ownership": null,
+            "query_facing": null,
+            "query_buy_floor": null,
+            "query_total_floors": null
+          },
+          "required_fields_complete": true,
+          "optional_fields_asked": true,
+          "prediction_ready": true
+        },
+        "market_status": "success"
+      }
+    },
+    {
+      "label": "live LLM explanation uses previous result",
+      "details": {
+        "reply": "**Previous model estimate: 95.94 Lac**\n\n**Property:** 2 BHK in Miyapur, 1200 sq.ft (Carpet).\n\nThe model estimate reflects patterns learned from historical listing data across the locality, while the comparable listings show a spread of advertised asking prices for similar two‑bedroom units with varying furnishing, balcony count, facing and transaction type. Because the comparables include both furnished and unfurnished homes, new and resale properties, and different balcony configurations, the average asking level can differ from the model’s prediction, which weighs all training examples together. Listing prices are advertised amounts, not confirmed sale transactions, and the sample size is limited, so a precise reason for the gap cannot be isolated from the supplied evidence alone.\n\n**Listing evidence:** 37 matching locality listings; median asking price ₹10,000,000; middle half of listings ₹7,900,000–₹10,700,000; median ₹9,892 per sq.ft.\n\nThis is a model estimate, not a certified appraisal or guaranteed transaction price. Listing data may be historical. Actual prices vary with condition, amenities and negotiations.",
+        "prediction": null,
+        "property": {
+          "intent": "flat_purchase",
+          "locality": "Miyapur",
+          "missing_fields": [],
+          "ready_for_prediction": true,
+          "reply": "",
+          "area": 1200,
+          "area_unit": "sqft",
+          "bhk": 2,
+          "original_area": 1200,
+          "original_area_unit": "sqft",
+          "furnishing": "Semi-Furnished",
+          "transaction": "Resale",
+          "bathroom": 2,
+          "balcony": 0,
+          "area_source": "Carpet",
+          "assumptions": []
+        },
+        "state": {
+          "stage": "completed",
+          "optional_fields_asked": true,
+          "prediction_ready": false,
+          "prediction_status": "information"
+        },
+        "market_status": "success"
+      }
+    },
+    {
+      "label": "live LLM market comparison",
+      "details": {
+        "reply": "These figures describe advertised listings in the available dataset, not current transaction prices.\n\n**Kukatpally** (2 BHK, Carpet): 8 listings; median asking price ₹8,650,000; median ₹8,640 per sq.ft.\n\n**Miyapur** (2 BHK, Carpet): 37 listings; median asking price ₹10,000,000; median ₹9,892 per sq.ft.",
+        "prediction": null,
+        "property": {
+          "intent": "flat_purchase",
+          "locality": "Miyapur",
+          "missing_fields": [],
+          "ready_for_prediction": true,
+          "reply": "",
+          "area": 1200,
+          "area_unit": "sqft",
+          "bhk": 2,
+          "original_area": 1200,
+          "original_area_unit": "sqft",
+          "furnishing": "Semi-Furnished",
+          "transaction": "Resale",
+          "bathroom": 2,
+          "balcony": 0,
+          "area_source": "Carpet",
+          "assumptions": []
+        },
+        "state": {
+          "stage": "completed",
+          "optional_fields_asked": true,
+          "prediction_ready": false,
+          "prediction_status": "information"
+        }
+      }
+    },
+    {
+      "label": "live LLM complete house request",
+      "details": {
+        "reply": "**Model estimate: 2.49 Cr**\n\n**Property:** 3 BHK in Kukatpally, 1800 sq.ft (Super).\n\nThe model estimate for this three‑bedroom, semi‑furnished, east‑facing resale house in Kukatpally differs from the limited local listing sample, which shows only two comparable advertisements with a narrow price band. The broader set of eight comparables drawn from other Hyderabad localities spans a wide range of asking prices per square foot, reflecting differences in furnishing, facing, bathroom count and neighbourhood dynamics that are not fully captured by the model. Because the evidence consists solely of historical advertised asking prices rather than confirmed transactions, and because key attributes such as floor level, exact age and amenities are missing for many comparables, a precise like‑for‑like comparison cannot be established. The model output should therefore be treated as an indicative reference, and any decision should incorporate a physical inspection, legal verification and current market advice.\n\n**Listing evidence:** 2 matching locality listings; median asking price ₹32,500,000; middle half of listings ₹31,250,000–₹33,750,000; median ₹18,010 per sq.ft.\n\nSome comparable listings come from other localities because local matches were limited.\n\nThis is a model estimate, not a certified appraisal or guaranteed transaction price. Listing data may be historical. Actual prices vary with condition, amenities and negotiations.",
+        "prediction": "2.49 Cr",
+        "property": {
+          "intent": "house_purchase",
+          "area": 1800,
+          "bhk": 3,
+          "locality": "Kukatpally",
+          "area_unit": "sqft",
+          "furnishing": "Semi-Furnished",
+          "transaction": "Resale",
+          "area_source": "Super",
+          "bathroom": 3,
+          "balcony": 1,
+          "ownership": "Freehold",
+          "facing": "East",
+          "buy_floor": 0,
+          "total_floors": 2,
+          "missing_fields": [],
+          "ready_for_prediction": true,
+          "reply": "",
+          "original_area": 1800,
+          "original_area_unit": "sqft",
+          "assumptions": []
+        },
+        "state": {
+          "stage": "completed",
+          "prediction_status": "completed",
+          "previous_prediction": "2.49 Cr",
+          "required_fields": {
+            "query_area": 1800,
+            "query_bhk": 3,
+            "query_locality": "Kukatpally"
+          },
+          "optional_fields": {
+            "query_Furnishing": "Semi-Furnished",
+            "query_Transaction": "Resale",
+            "query_area_source": "Super",
+            "query_Bathroom": 3,
+            "query_Balcony": 1,
+            "query_ownership": "Freehold",
+            "query_facing": "East",
+            "query_buy_floor": 0,
+            "query_total_floors": 2
+          },
+          "required_fields_complete": true,
+          "optional_fields_asked": true,
+          "prediction_ready": true
+        },
+        "market_status": "success"
+      }
+    },
+    {
+      "label": "live LLM complete rental request",
+      "details": {
+        "reply": "**Model estimate: ₹32,298**\n\n**Property:** 2 BHK in Gachibowli, 1200 sq.ft (Super).\n\nThe model estimate for this semi‑furnished, two‑bedroom unit on the third floor of a five‑storey building falls below the median asking rent observed across recent Gachibowli listings. The comparable set shows a wide spread of advertised rents, with several semi‑furnished apartments of similar size and floor level quoting substantially higher amounts, while a few furnished or higher‑floor units sit at the upper end. Differences in furnishing level, balcony count, floor height, and view attributes likely contribute to the variation, but the available data does not isolate the impact of any single feature. Because the comparables are historical advertised prices rather than confirmed transactions, and because the sample size is limited, a precise benchmark cannot be established from the supplied evidence alone.\n\n**Listing evidence:** 26 matching locality listings; median monthly rent ₹51,500; middle half of listings ₹45,250–₹60,000; median ₹40 per sq.ft per month.\n\nThis is a model estimate, not a certified appraisal or guaranteed transaction price. Listing data may be historical. Actual prices vary with condition, amenities and negotiations.",
+        "prediction": "₹32,298",
+        "property": {
+          "intent": "rent",
+          "area": 1200,
+          "bhk": 2,
+          "locality": "Gachibowli",
+          "area_unit": "sqft",
+          "furnishing": "Semi-Furnished",
+          "area_source": "Super",
+          "bathroom": 2,
+          "balcony": 1,
+          "buy_floor": 3,
+          "total_floors": 5,
+          "missing_fields": [],
+          "ready_for_prediction": true,
+          "reply": "",
+          "original_area": 1200,
+          "original_area_unit": "sqft",
+          "assumptions": []
+        },
+        "state": {
+          "stage": "completed",
+          "prediction_status": "completed",
+          "previous_prediction": "₹32,298",
+          "required_fields": {
+            "query_area": 1200,
+            "query_bhk": 2,
+            "query_locality": "Gachibowli"
+          },
+          "optional_fields": {
+            "query_Furnishing": "Semi-Furnished",
+            "query_Transaction": null,
+            "query_area_source": "Super",
+            "query_Bathroom": 2,
+            "query_Balcony": 1,
+            "query_ownership": null,
+            "query_facing": null,
+            "query_buy_floor": 3,
+            "query_total_floors": 5
+          },
+          "required_fields_complete": true,
+          "optional_fields_asked": true,
+          "prediction_ready": true
+        },
+        "market_status": "success"
+      }
+    },
+    {
+      "label": "live session isolation",
+      "details": {
+        "reply": "Sure! How many bedrooms (BHK) are you looking for, and approximately how large should the property be (in sq ft)?",
+        "prediction": null,
+        "property": {
+          "intent": "flat_purchase",
+          "locality": "Kokapet",
+          "missing_fields": [
+            "area",
+            "bhk"
+          ],
+          "ready_for_prediction": false,
+          "reply": ""
+        },
+        "state": {
+          "stage": "collect_required",
+          "prediction_status": "collecting",
+          "previous_prediction": null,
+          "required_fields": {
+            "query_area": null,
+            "query_bhk": null,
+            "query_locality": "Kokapet"
+          },
+          "optional_fields": {
+            "query_Furnishing": null,
+            "query_Transaction": null,
+            "query_area_source": null,
+            "query_Bathroom": null,
+            "query_Balcony": null,
+            "query_ownership": null,
+            "query_facing": null,
+            "query_buy_floor": null,
+            "query_total_floors": null
+          },
+          "required_fields_complete": false,
+          "optional_fields_asked": false,
+          "prediction_ready": false
+        }
+      }
+    }
+  ]
+}

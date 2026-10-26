@@ -22,7 +22,8 @@ PROPGPT_FIELDS <- c(
   "total_floors",
   "missing_fields",
   "ready_for_prediction",
-  "reply"
+  "reply",
+  "action", "market_localities"
 )
 
 
@@ -211,7 +212,7 @@ normalize_extraction <- function(data) {
         is.list(value) ||
         is.na(value)
       ) {
-        data[[field]] <- NULL
+        data[[field]] <- "invalid"
         next
       }
       
@@ -229,7 +230,7 @@ normalize_extraction <- function(data) {
           if (!is.na(converted)) {
             data[[field]] <- converted
           } else {
-            data[[field]] <- NULL
+            data[[field]] <- "invalid"
           }
         }
       } else {

@@ -1,35 +1,37 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { Sparkles, Trash2, Bot, AlertCircle, RefreshCw } from 'lucide-react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import {
+  Sparkles, Trash2, Bot, Menu
+} from 'lucide-react';
 import MessageBubble from './MessageBubble';
 import ChatInput from './ChatInput';
+import ChatHomeEmptyState from './ChatHomeEmptyState';
 import { sendChatMessage } from '../../services/plumberApi';
+import { updateSessionMessages } from '../../services/chatStorage';
 
-const DEFAULT_SUGGESTIONS = [
-  "I want to buy a 3 BHK flat in Kokapet around 1800 sq ft",
-  "Looking for a 2 BHK flat in Kukatpally resale 1200 sq ft",
-  "4 BHK Independent House in Jubilee Hills 3200 sq ft",
-  "2 BHK Rental flat in Gachibowli 1250 sq ft furnished"
-];
-
-export default function ChatInterface({ prefilledPrompt }) {
-  const [sessionId, setSessionId] = useState(() => {
-    return 'session_' + Math.random().toString(36).substring(2, 9);
-  });
-
-  const [messages, setMessages] = useState([
-    {
-      id: 'welcome',
-      role: 'assistant',
-      content: "Hello! I am PropGPT, your intelligent real estate pricing companion for Hyderabad. Tell me what property you are looking to buy or rent (e.g. 'I want to buy a 3 BHK flat in Kokapet around 1800 sq ft'), and I'll extract the details, compare micro-market trends, and calculate an accurate ML valuation.",
-      suggestions: DEFAULT_SUGGESTIONS,
-      timestamp: 'Just now'
-    }
-  ]);
-
+export default function ChatInterface({
+  session,
+  onUpdateSession,
+  onNewChat,
+  onOpenMobileMenu,
+  pendingPrompt,
+  onConsumePrompt
+}) {
+  const [messages, setMessages] = useState(() => session?.messages || []);
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef(null);
+  const containerRef = useRef(null);
+  const sendingRef = useRef(false);
+  const consumedPromptRef = useRef(null);
+  const backendSessionRef = useRef(session.backendSessionId || session.id);
+  const mountedRef = useRef(true);
+  useEffect(() => {
+    mountedRef.current = true;
+    return () => { mountedRef.current = false; };
+  }, []);
 
-  // Auto-scroll to bottom of messages
+
+
+  // Scroll to bottom when messages change
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
@@ -38,15 +40,10 @@ export default function ChatInterface({ prefilledPrompt }) {
     scrollToBottom();
   }, [messages, isLoading]);
 
-  // Handle prefilled prompt from Hero or outside
-  useEffect(() => {
-    if (prefilledPrompt) {
-      handleSendMessage(prefilledPrompt);
-    }
-  }, [prefilledPrompt]);
-
-  const handleSendMessage = async (text) => {
-    if (!text || isLoading) return;
+  const handleSendMessage = useCallback(async (text) => {
+    if (!text || !text.trim() || sendingRef.current) return;
+    sendingRef.current = true;
+    const backendSessionId = backendSessionRef.current;
 
     const userMessage = {
       id: 'user_' + Date.now(),
@@ -55,11 +52,13 @@ export default function ChatInterface({ prefilledPrompt }) {
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
     };
 
-    setMessages((prev) => [...prev, userMessage]);
+    const newMessages = [...messages, userMessage];
+    setMessages(newMessages);
+    updateSessionMessages(session.id, newMessages);
     setIsLoading(true);
 
     try {
-      const response = await sendChatMessage(sessionId, text);
+      const response = await sendChatMessage(backendSessionId, text);
 
       const predictionData = response.prediction ? {
         predicted_price: response.prediction,
@@ -69,163 +68,302 @@ export default function ChatInterface({ prefilledPrompt }) {
       const aiMessage = {
         id: 'ai_' + Date.now(),
         role: 'assistant',
-        content: response.reply || response.message || "I have analyzed your property request.",
+        content: response.reply || response.message || "I have analyzed your property request against Hyderabad micro-market datasets.",
         prediction: predictionData,
         property_details: response.property || response.property_details || (response.conversation_state?.required_fields) || null,
         suggestions: response.suggested_replies || response.suggestions || null,
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
       };
 
-      setMessages((prev) => [...prev, aiMessage]);
+      const finalMessages = [...newMessages, aiMessage];
+      if (mountedRef.current) setMessages(finalMessages);
+      updateSessionMessages(session.id, finalMessages);
+      if (onUpdateSession) onUpdateSession();
     } catch (err) {
       console.warn("Plumber chat API error:", err);
 
       // Never fabricate a predicted price. Return an honest error message with retry guidance.
-      setMessages((prev) => [
-        ...prev,
-        {
-          id: 'ai_' + Date.now(),
-          role: 'assistant',
-          content: "⚠️ I'm unable to connect to the PropGPT valuation backend at this moment. Please verify that the R Plumber API server is running on http://127.0.0.1:8000 and try again.",
-          prediction: null,
-          property_details: null,
-          suggestions: [
-            "Estimate price of a 2 BHK in Kukatpally 1200 sqft",
-            "Try again"
-          ],
-          timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-        }
-      ]);
+      const errorMessage = {
+        id: 'ai_' + Date.now(),
+        role: 'assistant',
+        content: `I couldn't complete that request. ${err.message || 'Please check the connection and try again.'}`,
+        prediction: null,
+        property_details: null,
+        suggestions: [
+          text,
+          "Estimate price of a 2 BHK in Kukatpally 1200 sqft",
+          "What is the average rate in Kokapet?"
+        ],
+        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      };
+
+      const finalMessages = [...newMessages, errorMessage];
+      if (mountedRef.current) setMessages(finalMessages);
+      updateSessionMessages(session.id, finalMessages);
+      if (onUpdateSession) onUpdateSession();
     } finally {
-      setIsLoading(false);
+      sendingRef.current = false;
+      if (mountedRef.current) setIsLoading(false);
+    }
+  }, [messages, onUpdateSession, session.id]);
+
+  useEffect(() => {
+    if (pendingPrompt && consumedPromptRef.current !== pendingPrompt.id) {
+      consumedPromptRef.current = pendingPrompt.id;
+      handleSendMessage(pendingPrompt.text);
+      onConsumePrompt?.();
+    }
+  }, [pendingPrompt, onConsumePrompt, handleSendMessage]);
+
+  const handleClearCurrentChat = () => {
+    if (sendingRef.current) return;
+    if (confirm('Clear messages in this conversation?')) {
+      const resetMessages = [
+        {
+          id: 'welcome_reset',
+          role: 'assistant',
+          content: "Conversation cleared. How can I assist you with your property valuation today?",
+          suggestions: [
+            "3 BHK Flat in Kokapet 1800 sqft",
+            "2 BHK Flat in Kukatpally Resale 1200 sqft",
+            "4 BHK Villa in Jubilee Hills 3200 sqft",
+            "2 BHK Rental in Gachibowli Furnished 1350 sqft"
+          ],
+          timestamp: 'Just now'
+        }
+      ];
+      setMessages(resetMessages);
+      backendSessionRef.current = `session_${crypto.randomUUID()}`;
+      updateSessionMessages(session.id, resetMessages, backendSessionRef.current);
+      if (onUpdateSession) onUpdateSession();
     }
   };
 
-  const handleClearChat = () => {
-    setSessionId('session_' + Math.random().toString(36).substring(2, 9));
-    setMessages([
-      {
-        id: 'welcome_new',
-        role: 'assistant',
-        content: "Chat reset! How can I assist you with Hyderabad property valuations today?",
-        suggestions: DEFAULT_SUGGESTIONS,
-        timestamp: 'Just now'
-      }
-    ]);
-  };
+  // Determine if we are at empty/home state (only initial welcome message, 0 user messages)
+  const userMessagesCount = messages.filter(m => m.role === 'user').length;
+  const isHomeEmptyState = userMessagesCount === 0;
 
   return (
     <div style={{
-      background: 'rgba(20, 28, 46, 0.75)',
-      backdropFilter: 'blur(20px)',
-      border: '1px solid rgba(255, 255, 255, 0.08)',
-      borderRadius: '24px',
-      boxShadow: '0 20px 50px rgba(0, 0, 0, 0.5)',
       display: 'flex',
       flexDirection: 'column',
-      height: '680px',
-      maxHeight: '85vh',
+      height: '100vh',
       width: '100%',
-      maxWidth: '900px',
-      margin: '0 auto',
+      position: 'relative',
+      background: '#070A11',
       overflow: 'hidden'
     }}>
-      {/* Header */}
+      {/* Ambient Radial Gradients */}
       <div style={{
-        padding: '16px 24px',
-        borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
+        position: 'absolute',
+        top: '10%',
+        left: '20%',
+        width: '500px',
+        height: '500px',
+        borderRadius: '50%',
+        background: 'radial-gradient(circle, rgba(59, 130, 246, 0.08) 0%, transparent 70%)',
+        filter: 'blur(80px)',
+        pointerEvents: 'none'
+      }} />
+      <div style={{
+        position: 'absolute',
+        bottom: '15%',
+        right: '15%',
+        width: '450px',
+        height: '450px',
+        borderRadius: '50%',
+        background: 'radial-gradient(circle, rgba(168, 85, 247, 0.07) 0%, transparent 70%)',
+        filter: 'blur(90px)',
+        pointerEvents: 'none'
+      }} />
+
+      {/* Top Header Bar */}
+      <header className="chat-header" style={{
+        padding: '12px 20px',
+        borderBottom: '1px solid rgba(255, 255, 255, 0.06)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
-        background: 'rgba(11, 17, 30, 0.6)'
+        background: 'rgba(13, 19, 32, 0.75)',
+        backdropFilter: 'blur(16px)',
+        zIndex: 20
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <div style={{
-            width: '32px',
-            height: '32px',
-            borderRadius: '8px',
-            background: 'linear-gradient(135deg, #2563EB 0%, #38BDF8 100%)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center'
-          }}>
-            <Bot size={18} color="#FFFFFF" />
-          </div>
-          <div>
-            <h3 style={{ fontSize: '15px', fontWeight: 700, color: '#FFFFFF', margin: 0 }}>
-              PropGPT Conversational Engine
-            </h3>
-            <span style={{ fontSize: '11px', color: '#94A3B8' }}>
-              Multi-turn slot extraction & real-time R Plumber inference
+        {/* Left: Mobile hamburger + Active Chat Title */}
+        <div className="chat-header-left" style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          {onOpenMobileMenu && (
+            <button
+              onClick={onOpenMobileMenu}
+              className="mobile-hamburger-btn"
+              aria-label="Open navigation"
+              style={{
+                display: 'none',
+                background: 'rgba(255, 255, 255, 0.05)',
+                border: '1px solid rgba(255, 255, 255, 0.1)',
+                borderRadius: '8px',
+                padding: '6px',
+                color: '#FFFFFF',
+                cursor: 'pointer'
+              }}
+            >
+              <Menu size={18} />
+            </button>
+          )}
+
+          <div className="chat-header-title" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <span style={{
+              fontSize: '13px',
+              fontWeight: 600,
+              color: '#FFFFFF',
+              maxWidth: '300px',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap'
+            }}>
+              {session?.title || "Property Valuation"}
+            </span>
+            <span className="chat-property-tag" style={{
+              fontSize: '10px',
+              padding: '2px 6px',
+              borderRadius: '9999px',
+              background: 'rgba(99, 102, 241, 0.15)',
+              color: '#C0C1FF',
+              border: '1px solid rgba(99, 102, 241, 0.25)',
+              fontWeight: 600
+            }}>
+              {session?.propertyType || "Conversational"}
             </span>
           </div>
         </div>
 
-        <button
-          onClick={handleClearChat}
-          title="Reset conversation"
-          style={{
-            background: 'rgba(255, 255, 255, 0.05)',
-            border: '1px solid rgba(255, 255, 255, 0.1)',
-            color: '#94A3B8',
-            borderRadius: '8px',
-            padding: '6px 10px',
-            fontSize: '12px',
-            cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '6px',
-            transition: 'all 0.2s'
-          }}
-        >
-          <Trash2 size={13} />
-          Clear Chat
-        </button>
-      </div>
-
-      {/* Message stream */}
-      <div style={{
-        flex: 1,
-        overflowY: 'auto',
-        padding: '24px',
-        display: 'flex',
-        flexDirection: 'column'
-      }}>
-        {messages.map((msg) => (
-          <MessageBubble
-            key={msg.id}
-            message={msg}
-            onSelectSuggestion={handleSendMessage}
-          />
-        ))}
-
-        {isLoading && (
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '12px' }}>
-            <div style={{
-              width: '32px',
-              height: '32px',
+        {/* Right: Actions (New Chat, Clear, Share) */}
+        <div className="chat-header-actions" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <button
+            onClick={onNewChat}
+            className="chat-new-button"
+            style={{
+              padding: '6px 12px',
               borderRadius: '8px',
-              background: 'rgba(56, 189, 248, 0.2)',
+              background: 'rgba(99, 102, 241, 0.12)',
+              border: '1px solid rgba(99, 102, 241, 0.25)',
+              color: '#C0C1FF',
+              fontSize: '12px',
+              fontWeight: 600,
+              cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
-              justifyContent: 'center'
-            }}>
-              <RefreshCw size={16} color="#38BDF8" className="animate-spin" />
-            </div>
-            <div style={{ fontSize: '13px', color: '#94A3B8' }}>
-              PropGPT is analyzing property specifications...
-            </div>
+              gap: '6px',
+              transition: 'all 0.2s'
+            }}
+          >
+            <span>+ New Chat</span>
+          </button>
+
+          <button
+            onClick={handleClearCurrentChat}
+            title="Clear conversation"
+            style={{
+              padding: '6px',
+              borderRadius: '8px',
+              background: 'rgba(255, 255, 255, 0.04)',
+              border: '1px solid rgba(255, 255, 255, 0.08)',
+              color: '#94A3B8',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              transition: 'all 0.2s'
+            }}
+          >
+            <Trash2 size={15} />
+          </button>
+        </div>
+      </header>
+
+      {/* Main Conversation Scrollable Viewport */}
+      <div
+        ref={containerRef}
+        className="chat-scroll"
+        style={{
+          flex: 1,
+          overflowY: 'auto',
+          padding: '20px 20px 140px',
+          display: 'flex',
+          flexDirection: 'column',
+          position: 'relative',
+          zIndex: 10
+        }}
+      >
+        {isHomeEmptyState ? (
+          <div style={{ margin: 'auto 0' }}>
+            <ChatHomeEmptyState onSelectPrompt={handleSendMessage} />
+          </div>
+        ) : (
+          <div style={{ maxWidth: '820px', width: '100%', margin: '0 auto' }}>
+            {messages.map((message) => (
+              <MessageBubble
+                key={message.id}
+                message={message}
+                onSelectSuggestion={handleSendMessage}
+                onAskAiAboutValuation={handleSendMessage}
+              />
+            ))}
+
+            {/* Loading Indicator Bubble */}
+            {isLoading && (
+              <div style={{
+                display: 'flex',
+                alignItems: 'flex-start',
+                gap: '12px',
+                marginBottom: '20px'
+              }}>
+                <div style={{
+                  width: '34px',
+                  height: '34px',
+                  borderRadius: '10px',
+                  background: 'linear-gradient(135deg, #3B82F6 0%, #6366F1 50%, #A855F7 100%)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  boxShadow: '0 0 15px rgba(99, 102, 241, 0.35)'
+                }}>
+                  <Bot size={16} color="#FFFFFF" />
+                </div>
+                <div style={{
+                  background: 'rgba(20, 28, 46, 0.85)',
+                  border: '1px solid rgba(99, 102, 241, 0.3)',
+                  backdropFilter: 'blur(16px)',
+                  padding: '14px 18px',
+                  borderRadius: '18px 18px 18px 4px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '10px',
+                  color: '#C0C1FF',
+                  fontSize: '13px'
+                }}>
+                  <div style={{ display: 'flex', gap: '4px' }}>
+                    <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#6366F1', animation: 'pulseGlow 1s infinite 0s' }} />
+                    <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#38BDF8', animation: 'pulseGlow 1s infinite 0.2s' }} />
+                    <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#A855F7', animation: 'pulseGlow 1s infinite 0.4s' }} />
+                  </div>
+                  <span>Reviewing your property details...</span>
+                </div>
+              </div>
+            )}
+
+            <div ref={messagesEndRef} />
           </div>
         )}
-
-        <div ref={messagesEndRef} />
       </div>
 
-      {/* Input Tray */}
+      {/* Persistent Bottom Floating Composer */}
       <div style={{
-        padding: '16px 20px',
-        borderTop: '1px solid rgba(255, 255, 255, 0.08)',
-        background: 'rgba(11, 17, 30, 0.7)'
+        position: 'absolute',
+        bottom: 0,
+        left: 0,
+        right: 0,
+        padding: '0 20px 16px',
+        background: 'linear-gradient(to top, rgba(7, 10, 17, 0.98) 70%, transparent 100%)',
+        zIndex: 30
       }}>
         <ChatInput
           onSendMessage={handleSendMessage}

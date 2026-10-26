@@ -3,6 +3,8 @@
  * Standardized financial and real estate metric formatters
  */
 
+import { getPreferences } from '../services/chatStorage.js';
+
 export function parsePriceToNumber(value) {
   if (value === null || value === undefined) return 0;
   if (typeof value === 'number') return isFinite(value) ? value : 0;
@@ -45,6 +47,7 @@ export function formatINR(value, isRent = false) {
   if (isRent) {
     return `₹ ${Math.round(num).toLocaleString('en-IN')} / mo`;
   }
+  if (getPreferences().currencyDisplay === 'standard') return `₹ ${Math.round(num).toLocaleString('en-IN')}`;
 
   if (num >= 10000000) {
     const cr = num / 10000000;
