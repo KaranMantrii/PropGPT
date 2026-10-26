@@ -1,3 +1,8 @@
 # PropGPT Backend Environment Configuration
 # Sign up at https://build.nvidia.com to obtain your Nemotron API key
 NVIDIA_API_KEY="your_nvidia_nemotron_api_key_here"
+NVIDIA_BASE_URL="https://integrate.api.nvidia.com/v1"
+NVIDIA_MODEL="nvidia/nemotron-3-ultra-550b-a55b"
+CORS_ORIGINS="http://127.0.0.1:5173,http://localhost:5173"
+HOST="127.0.0.1"
+PORT=8000

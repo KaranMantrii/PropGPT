@@ -1,3 +1,11 @@
+# Prefer project-local dependencies when installed alongside the repository.
+if (dir.exists("../.r-library")) {
+  .libPaths(c(normalizePath("../.r-library"), .libPaths()))
+}
+
+options(encoding = "UTF-8")
+if (.Platform$OS.type == "windows") invisible(Sys.setlocale("LC_CTYPE", ".UTF-8"))
+
 library(stringr)
 library(plumber)
 
@@ -6,6 +14,7 @@ library(plumber)
 # ============================================================
 
 api <- plumb("Plumber.R")
+api$setSerializer(serializer_json(auto_unbox = TRUE, null = "null", na = "null"))
 
 # ============================================================
 # OPENAPI / SWAGGER DOCUMENTATION
@@ -315,7 +324,7 @@ api$setApiSpec(function(spec) {
 
 port <- as.numeric(Sys.getenv("PORT", "8000"))
 api$run(
-  host = "0.0.0.0",
+  host = Sys.getenv("HOST", "127.0.0.1"),
   port = port
 )
 

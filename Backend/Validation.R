@@ -106,6 +106,13 @@ validate_property <- function(property) {
   
   errors <- character(0)
   missing_fields <- character(0)
+  for (field in intersect(names(property), c("intent", "area", "area_unit", "bhk", "locality", "furnishing", "transaction", "area_source", "bathroom", "balcony", "ownership", "facing", "buy_floor", "total_floors"))) {
+    value <- property[[field]]
+    if (!is.null(value) && (length(value) != 1 || !is.atomic(value) || is.logical(value))) {
+      return(list(valid = FALSE, ready_for_prediction = FALSE, missing_fields = character(0),
+        errors = paste(field, "must contain one valid value."), data = property))
+    }
+  }
   
   
   # ------------------------------------------
@@ -214,7 +221,7 @@ validate_property <- function(property) {
     
     missing_fields <- c(missing_fields, "locality")
     
-  } else if (!is.character(property$locality)) {
+  } else if (!is.character(property$locality) || nchar(property$locality) > 150) {
     
     errors <- c(
       errors,
@@ -243,11 +250,11 @@ validate_property <- function(property) {
     
     if (!is_empty_value(value)) {
       
-      if (!is_non_negative_number(value)) {
+      if (!is_non_negative_number(value) || as.numeric(value) != floor(as.numeric(value))) {
         
         errors <- c(
           errors,
-          paste(field, "must be a valid non-negative number.")
+          paste(field, "must be a valid non-negative whole number.")
         )
         
       } else {
@@ -275,11 +282,11 @@ validate_property <- function(property) {
     
     if (!is_empty_value(value)) {
       
-      if (!is_positive_integer(value)) {
+      if (!(if (field == "buy_floor") is_non_negative_number(value) && as.numeric(value) == floor(as.numeric(value)) else is_positive_integer(value))) {
         
         errors <- c(
           errors,
-          paste(field, "must be a positive whole number.")
+          paste(field, if (field == "buy_floor") "must be a non-negative whole number." else "must be a positive whole number.")
         )
         
       } else {
@@ -353,6 +360,15 @@ validate_property <- function(property) {
   # 7. Recalculate missing fields
   # ------------------------------------------
   
+  for (field in c("ownership", "facing")) {
+    if (!is_empty_value(property[[field]])) {
+      choices <- if (field == "ownership") c("Freehold", "Leasehold", "Co-operative Society", "Power Of Attorney") else
+        c("East", "West", "North", "South", "NorthEast", "NorthWest", "SouthEast", "SouthWest")
+      key <- function(x) gsub("[^a-z]", "", tolower(x))
+      match <- match(key(as.character(property[[field]])), key(choices))
+      if (is.na(match)) errors <- c(errors, paste("Unsupported", field, "category.")) else property[[field]] <- choices[[match]]
+    }
+  }
   missing_fields <- unique(missing_fields)
   
   ready_for_prediction <- (

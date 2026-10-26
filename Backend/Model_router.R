@@ -30,6 +30,25 @@ get_optional_field <- function(property, field) {
 # Main prediction router
 # ------------------------------------------
 
+resolve_prediction_defaults <- function(property) {
+  defaults <- list(furnishing = "Semi-Furnished", transaction = "Resale", area_source = "Carpet",
+    bathroom = property$bhk, balcony = 1)
+  if (property$intent == "rent") defaults$transaction <- NULL
+  if (property$intent %in% c("house_purchase", "rent")) defaults <- c(defaults, list(buy_floor = 3, total_floors = 5))
+  if (property$intent == "house_purchase") defaults <- c(defaults, list(ownership = "Freehold", facing = "East"))
+  assumed <- character(0)
+  labels <- c(furnishing = "Furnishing", transaction = "Transaction", area_source = "Area basis", bathroom = "Bathrooms",
+    balcony = "Balconies", buy_floor = "Property floor", total_floors = "Total floors", ownership = "Ownership", facing = "Facing")
+  for (field in names(defaults)) {
+    if (is_empty_value(property[[field]])) {
+      property[[field]] <- defaults[[field]]
+      assumed <- c(assumed, paste0(labels[[field]], ": ", defaults[[field]]))
+    }
+  }
+  property$assumptions <- assumed
+  property
+}
+
 route_prediction <- function(property) {
   
   # ----------------------------------------
@@ -58,6 +77,7 @@ route_prediction <- function(property) {
   if (!isTRUE(property$ready_for_prediction)) {
     stop("Property has not passed validation.")
   }
+  property <- resolve_prediction_defaults(property)
   
   # All predictors expect area in square feet.
   area <- as.numeric(property$area)

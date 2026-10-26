@@ -1,171 +1,198 @@
-import React, { useState, useRef } from 'react';
-import Navbar from './components/common/Navbar';
-import HeroSection from './components/hero/HeroSection';
+import React, { useState, useEffect } from 'react';
+import Sidebar from './components/sidebar/Sidebar';
 import ChatInterface from './components/chat/ChatInterface';
 import ManualPredictionForm from './components/manual-form/ManualPredictionForm';
-import MarketIntelligence from './components/sections/MarketIntelligence';
-import HowItWorks from './components/sections/HowItWorks';
-import WhyPropGPT from './components/sections/WhyPropGPT';
-import Footer from './components/common/Footer';
-import { MessageSquare, Calculator, TrendingUp, Sparkles, Building2 } from 'lucide-react';
+import SettingsModal from './components/settings/SettingsModal';
+import {
+  getSessions,
+  getCurrentSessionId,
+  setCurrentSessionId,
+  createNewSession,
+  deleteSession,
+  renameSession,
+  updateSessionMessages
+} from './services/chatStorage';
+import { checkHealth } from './services/plumberApi';
+import './App.css';
 
 export default function App() {
-  const [activeSection, setActiveSection] = useState('chat');
-  const [prefilledChatPrompt, setPrefilledChatPrompt] = useState(null);
+  const [activeView, setActiveView] = useState('chat'); // 'chat' | 'predictor'
+  const [sessions, setSessions] = useState(() => getSessions());
+  const [currentSessionId, setCurrentSessionIdState] = useState(() => getCurrentSessionId());
+  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [backendStatus, setBackendStatus] = useState('checking');
+  const [pendingPrompt, setPendingPrompt] = useState(null);
 
-  const chatRef = useRef(null);
-  const calcRef = useRef(null);
-  const marketRef = useRef(null);
-  const workflowRef = useRef(null);
+  // Verify backend health on mount
+  useEffect(() => {
+    let mounted = true;
+    const refreshHealth = () => checkHealth()
+      .then(res => {
+        if (!mounted) return;
+        if (res && res.status === 'ok') {
+          setBackendStatus('online');
+        } else {
+          setBackendStatus('offline');
+        }
+      })
+      .catch(() => {
+        if (mounted) setBackendStatus('offline');
+      });
 
-  const handleNavigate = (section) => {
-    setActiveSection(section);
-    if (section === 'chat' && chatRef.current) {
-      chatRef.current.scrollIntoView({ behavior: 'smooth' });
-    } else if (section === 'calculator' && calcRef.current) {
-      calcRef.current.scrollIntoView({ behavior: 'smooth' });
-    } else if (section === 'market' && marketRef.current) {
-      marketRef.current.scrollIntoView({ behavior: 'smooth' });
-    } else if (section === 'workflow' && workflowRef.current) {
-      workflowRef.current.scrollIntoView({ behavior: 'smooth' });
-    } else {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
+    refreshHealth();
+    const interval = setInterval(refreshHealth, 30000);
+    window.addEventListener('propgpt-preferences-changed', refreshHealth);
+    return () => {
+      mounted = false;
+      clearInterval(interval);
+      window.removeEventListener('propgpt-preferences-changed', refreshHealth);
+    };
+  }, []);
+
+  // Current active session object
+  const currentSession = sessions.find(s => s.id === currentSessionId) || sessions[0] || null;
+
+  const handleSelectSession = (sessionId) => {
+    setCurrentSessionId(sessionId);
+    setCurrentSessionIdState(sessionId);
+    setActiveView('chat');
   };
 
-  const handleHeroPromptSelect = (promptText) => {
-    setPrefilledChatPrompt(promptText);
-    setActiveSection('chat');
-    if (chatRef.current) {
-      chatRef.current.scrollIntoView({ behavior: 'smooth' });
-    }
+  const handleNewChat = () => {
+    const fresh = createNewSession("New Property Valuation");
+    setSessions(getSessions());
+    setCurrentSessionIdState(fresh.id);
+    setActiveView('chat');
   };
 
-  const handleLocalitySelect = (locality) => {
-    setActiveSection('calculator');
-    if (calcRef.current) {
-      calcRef.current.scrollIntoView({ behavior: 'smooth' });
-    }
+  const handleDeleteSession = (sessionId) => {
+    const updated = deleteSession(sessionId);
+    setSessions(updated);
+    setCurrentSessionIdState(getCurrentSessionId());
+  };
+
+  const handleRenameSession = (sessionId, newTitle) => {
+    renameSession(sessionId, newTitle);
+    setSessions(getSessions());
+  };
+
+  const handleUpdateSession = () => {
+    setSessions(getSessions());
+  };
+
+  const handleAskAiFromPredictor = (promptText, context) => {
+    setActiveView('chat');
+    const fresh = createNewSession('Manual valuation discussion');
+    if (context?.backendSessionId) updateSessionMessages(fresh.id, fresh.messages, context.backendSessionId);
+    setSessions(getSessions());
+    setCurrentSessionIdState(fresh.id);
+    setPendingPrompt({ id: crypto.randomUUID(), text: promptText });
   };
 
   return (
-    <div style={{
-      minHeight: '100vh',
-      display: 'flex',
-      flexDirection: 'column',
-      background: '#0B111E',
-      color: '#F8FAFC'
-    }}>
-      {/* Top Navigation */}
-      <Navbar
-        activeSection={activeSection}
-        onNavigate={handleNavigate}
+    <div className="app-container">
+      {/* Compact Dark Sidebar with Multi-turn History */}
+      <Sidebar
+        activeView={activeView}
+        onSelectView={(view) => setActiveView(view)}
+        sessions={sessions}
+        currentSessionId={currentSessionId}
+        onSelectSession={handleSelectSession}
+        onNewChat={handleNewChat}
+        onDeleteSession={handleDeleteSession}
+        onRenameSession={handleRenameSession}
+        onOpenSettings={() => setIsSettingsOpen(true)}
+        backendStatus={backendStatus}
+        isMobileOpen={isMobileSidebarOpen}
+        onCloseMobile={() => setIsMobileSidebarOpen(false)}
       />
 
-      {/* Main Content Viewport */}
-      <main style={{ flex: 1 }}>
-        {/* Hero Section */}
-        <HeroSection
-          onSelectPrompt={handleHeroPromptSelect}
-          onExploreForm={() => handleNavigate('calculator')}
-        />
-
-        {/* Section View Switcher / Tabs */}
-        <div style={{
-          maxWidth: '900px',
-          margin: '20px auto 30px',
-          padding: '0 24px'
-        }}>
+      {/* Main Conversational / Valuation Workspace */}
+      <main className="main-workspace">
+        {activeView === 'chat' && currentSession ? (
+          <ChatInterface
+            key={currentSession.id}
+            session={currentSession}
+            onUpdateSession={handleUpdateSession}
+            onNewChat={handleNewChat}
+            onOpenMobileMenu={() => setIsMobileSidebarOpen(true)}
+            pendingPrompt={pendingPrompt}
+            onConsumePrompt={() => setPendingPrompt(null)}
+          />
+        ) : (
           <div style={{
+            minHeight: '100vh',
+            background: '#070A11',
             display: 'flex',
-            background: 'rgba(20, 28, 46, 0.7)',
-            backdropFilter: 'blur(16px)',
-            border: '1px solid rgba(255, 255, 255, 0.08)',
-            padding: '6px',
-            borderRadius: '16px',
-            boxShadow: '0 8px 30px rgba(0, 0, 0, 0.3)'
+            flexDirection: 'column'
           }}>
-            <button
-              onClick={() => handleNavigate('chat')}
-              style={{
-                flex: 1,
-                padding: '12px 18px',
-                borderRadius: '12px',
-                border: 'none',
-                background: activeSection === 'chat' ? 'linear-gradient(135deg, #2563EB 0%, #38BDF8 100%)' : 'transparent',
-                color: activeSection === 'chat' ? '#FFFFFF' : '#94A3B8',
-                fontWeight: 700,
-                fontSize: '14px',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '8px',
-                boxShadow: activeSection === 'chat' ? '0 4px 15px rgba(56, 189, 248, 0.3)' : 'none',
-                transition: 'all 0.2s'
-              }}
-            >
-              <MessageSquare size={18} />
-              AI Conversational Valuation
-            </button>
+            {/* Minimal Mobile Header when on Predictor View */}
+            <div style={{
+              padding: '12px 20px',
+              borderBottom: '1px solid rgba(255, 255, 255, 0.06)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              background: 'rgba(13, 19, 32, 0.75)',
+              backdropFilter: 'blur(16px)'
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <button
+                  onClick={() => setIsMobileSidebarOpen(true)}
+                  className="mobile-hamburger-btn"
+                  style={{
+                    background: 'rgba(255, 255, 255, 0.05)',
+                    border: '1px solid rgba(255, 255, 255, 0.1)',
+                    borderRadius: '8px',
+                    padding: '6px',
+                    color: '#FFFFFF',
+                    cursor: 'pointer'
+                  }}
+                >
+                  <span style={{ fontSize: '18px' }}>☰</span>
+                </button>
+                <span style={{ fontSize: '14px', fontWeight: 700, color: '#FFFFFF' }}>
+                  Manual Model Predictor (3-Tab)
+                </span>
+              </div>
 
-            <button
-              onClick={() => handleNavigate('calculator')}
-              style={{
-                flex: 1,
-                padding: '12px 18px',
-                borderRadius: '12px',
-                border: 'none',
-                background: activeSection === 'calculator' ? 'linear-gradient(135deg, #2563EB 0%, #38BDF8 100%)' : 'transparent',
-                color: activeSection === 'calculator' ? '#FFFFFF' : '#94A3B8',
-                fontWeight: 700,
-                fontSize: '14px',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '8px',
-                boxShadow: activeSection === 'calculator' ? '0 4px 15px rgba(56, 189, 248, 0.3)' : 'none',
-                transition: 'all 0.2s'
-              }}
-            >
-              <Calculator size={18} />
-              Manual Model Form (3-Tab)
-            </button>
+              <button
+                onClick={() => setActiveView('chat')}
+                className="btn-glass"
+                style={{
+                  padding: '6px 14px',
+                  borderRadius: '8px',
+                  fontSize: '12px',
+                  fontWeight: 600,
+                  color: '#38BDF8'
+                }}
+              >
+                Switch to Chat →
+              </button>
+            </div>
+
+            <div style={{ flex: 1, overflowY: 'auto' }}>
+              <ManualPredictionForm
+                onAskAiInstead={(prompt, context) => {
+                  handleAskAiFromPredictor(prompt, context);
+                }}
+              />
+            </div>
           </div>
-        </div>
-
-        {/* Primary Interactive Interface Container */}
-        <div style={{ maxWidth: '1060px', margin: '0 auto', padding: '0 24px' }}>
-          {activeSection === 'chat' ? (
-            <div ref={chatRef} className="animate-fade-in">
-              <ChatInterface prefilledPrompt={prefilledChatPrompt} />
-            </div>
-          ) : (
-            <div ref={calcRef} className="animate-fade-in">
-              <ManualPredictionForm />
-            </div>
-          )}
-        </div>
-
-        {/* Market Intelligence Section */}
-        <section ref={marketRef} style={{ padding: '60px 24px 20px', borderTop: '1px solid rgba(255, 255, 255, 0.05)', marginTop: '60px' }}>
-          <MarketIntelligence onSelectLocality={handleLocalitySelect} />
-        </section>
-
-        {/* How It Works Section */}
-        <section ref={workflowRef} style={{ padding: '40px 24px 20px' }}>
-          <HowItWorks />
-        </section>
-
-        {/* Why PropGPT Section */}
-        <section style={{ padding: '20px 24px 40px' }}>
-          <WhyPropGPT />
-        </section>
+        )}
       </main>
 
-      {/* Footer */}
-      <Footer />
+      {/* Settings Modal (Screen 6) */}
+      <SettingsModal
+        isOpen={isSettingsOpen}
+        onClose={() => setIsSettingsOpen(false)}
+        onClearHistory={() => {
+          setSessions(getSessions());
+          setCurrentSessionIdState(getCurrentSessionId());
+        }}
+        totalSessions={sessions.length}
+      />
     </div>
   );
 }

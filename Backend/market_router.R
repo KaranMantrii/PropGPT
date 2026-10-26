@@ -31,10 +31,16 @@ initialize_market_intelligence <- function(
   for (file in module_files) source(file, local = .GlobalEnv)
 
   # Load datasets once at backend startup, not on every /chat request.
+  load_available <- function(loader, path) {
+    tryCatch(loader(path), error = function(e) {
+      message("Market dataset unavailable: ", conditionMessage(e))
+      NULL
+    })
+  }
   list(
-    flat = load_flat_intelligence_data(flat_path),
-    house = load_house_intelligence_data(house_path),
-    rent = load_rent_intelligence_data(rent_path),
+    flat = load_available(load_flat_intelligence_data, flat_path),
+    house = load_available(load_house_intelligence_data, house_path),
+    rent = load_available(load_rent_intelligence_data, rent_path),
     initialized_at = Sys.time()
   )
 }

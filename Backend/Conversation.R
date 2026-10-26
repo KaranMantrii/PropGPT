@@ -22,6 +22,8 @@ create_conversation_session <- function(session_id) {
     property = empty_extraction(),
     optional_fields_asked = FALSE,
     stage = "collect_required",
+    last_prediction = NULL,
+    last_market_context = NULL,
     created_at = Sys.time(),
     updated_at = Sys.time()
   )
@@ -36,7 +38,7 @@ get_missing_optional_fields <- function(property) {
   
   fields <- c()
   if (is_empty_value(property$furnishing)) fields <- c(fields, "furnishing")
-  if (is_empty_value(property$transaction)) fields <- c(fields, "transaction")
+  if (intent != "rent" && is_empty_value(property$transaction)) fields <- c(fields, "transaction")
   if (is_empty_value(property$area_source)) fields <- c(fields, "area_source")
   if (is_empty_value(property$bathroom)) fields <- c(fields, "bathroom")
   if (is_empty_value(property$balcony)) fields <- c(fields, "balcony")
@@ -80,6 +82,10 @@ generate_optional_fields_prompt <- function(property) {
   if ("balcony" %in% missing_opt) {
     lines <- c(lines, "- **Balconies:** How many balconies are available? (e.g., 0, 1, 2)")
   }
+  labels <- c(ownership = "Ownership: Freehold, Leasehold, Co-operative Society, or Power Of Attorney?",
+    facing = "Facing: East, West, North, South, or a diagonal direction?",
+    buy_floor = "Which floor is the property on? Use 0 for ground floor.", total_floors = "How many total floors are in the building?")
+  for (field in intersect(names(labels), missing_opt)) lines <- c(lines, paste0("- ", labels[[field]]))
   
   if (length(lines) == 0) {
     return("Great! I have all your property details. Let me estimate the property price.")
@@ -229,6 +235,17 @@ generate_followup_question <- function(validation_result) {
 
 
 # Main conversation function
+save_information_reply <- function(session_id, session, reply, market_context = NULL, error_code = NULL) {
+  session$history <- append(session$history, list(list(role = "assistant", content = reply)))
+  session$updated_at <- Sys.time()
+  PROPGPT_SESSIONS[[session_id]] <- session
+  list(session_id = session_id, reply = reply, prediction = NULL, prediction_success = FALSE,
+    ready_for_prediction = FALSE, property = session$property, market_context = market_context,
+    error_code = error_code, conversation_state = list(stage = session$stage,
+      optional_fields_asked = isTRUE(session$optional_fields_asked), prediction_ready = FALSE,
+      prediction_status = if (is.null(error_code)) "information" else "error"))
+}
+
 process_conversation <- function(session_id, user_message, market_data = NULL) {
   
   # Auto-load market data if not passed explicitly
@@ -292,40 +309,21 @@ process_conversation <- function(session_id, user_message, market_data = NULL) {
     nemotron_chat(
       messages = extraction_messages,
       temperature = 0.2,
-      max_tokens = 1200
+      max_tokens = 1200,
+      json_mode = TRUE
     ),
     error = function(e) {
+      message("Nemotron extraction failed: ", conditionMessage(e))
       return(NULL)
     }
   )
   
   # Handle LLM connection failure gracefully
   if (is.null(nemotron_response)) {
-    return(
-      list(
-        session_id = session_id,
-        reply = "I'm having trouble connecting to my brain right now. Please try again in a moment.",
-        ready_for_prediction = FALSE,
-        prediction_success = FALSE,
-        prediction = NULL,
-        intent = NULL,
-        missing_fields = character(0),
-        errors = "Nemotron API connection failed",
-        prediction_error = NULL,
-        market_context = NULL,
-        market_error = NULL,
-        property = session$property,
-        conversation_state = list(
-          required_fields = list(),
-          optional_fields = list(),
-          required_fields_complete = FALSE,
-          optional_fields_asked = isTRUE(session$optional_fields_asked),
-          prediction_ready = FALSE
-        )
-      )
-    )
+    return(save_information_reply(session_id, session,
+      "The AI service is temporarily unavailable. Please try again, or use the manual predictor.", error_code = "llm_unavailable"))
   }
-  
+
   # ----------------------------------------
   # Extract property information
   # ----------------------------------------
@@ -333,9 +331,62 @@ process_conversation <- function(session_id, user_message, market_data = NULL) {
   extracted_property <- tryCatch(
     extract_property_details(nemotron_response),
     error = function(e) {
-      return(empty_extraction()) 
+      message("Nemotron JSON extraction failed: ", conditionMessage(e))
+      return(NULL)
     }
   )
+  if (is.null(extracted_property)) return(save_information_reply(session_id, session,
+    "I couldn't read the AI service's response. Please retry your message.", error_code = "invalid_llm_response"))
+
+  action <- extracted_property$action
+  if (is.null(action) || !is.character(action) || length(action) != 1) action <- "valuation"
+  if (action == "new_prediction") {
+    session$property <- empty_extraction()
+    session$optional_fields_asked <- FALSE
+    session$last_prediction <- NULL
+    session$last_market_context <- NULL
+  }
+  if (action == "explain" && !is.null(session$last_prediction)) {
+    reply <- tryCatch(generate_property_insight(session$last_prediction$property, session$last_prediction,
+      session$last_market_context, question = user_message), error = function(e) {
+        message("Explanation failed: ", conditionMessage(e))
+        paste("The previous model estimate was", session$last_prediction$prediction,
+          "based on the saved property details. A more detailed explanation is temporarily unavailable.")
+      })
+    return(save_information_reply(session_id, session, reply, session$last_market_context))
+  }
+  if (action == "market") {
+    property <- merge_property_details(session$property, extracted_property)
+    localities <- extracted_property$market_localities
+    if (is.null(localities) || !length(localities)) localities <- property$locality
+    if (!is.character(unlist(localities)) || length(localities) > 5) localities <- NULL
+    intent <- .market_normalize_intent(property$intent)
+    if (is.na(intent)) intent <- "flat"
+    summaries <- list()
+    market_bhk <- if (is_positive_integer(extracted_property$bhk)) as.numeric(extracted_property$bhk) else NULL
+    market_basis <- tryCatch(normalize_area_source(extracted_property$area_source), error = function(e) NULL)
+    lines <- c("These figures describe advertised listings in the available dataset, not current transaction prices.")
+    for (locality in as.character(unlist(localities))) {
+      data <- market_data[[intent]]
+      stats <- if (is.null(data)) NULL else switch(intent,
+        flat = get_flat_locality_stats(data, locality, bhk = market_bhk, area_source = market_basis),
+        house = get_house_locality_stats(data, locality, bhk = market_bhk, area_source = market_basis),
+        rent = get_rent_locality_stats(data, locality, bhk = market_bhk, area_source = market_basis))
+      summaries[[locality]] <- stats
+      if (is.null(stats)) lines <- c(lines, paste("No matching listing statistics are available for", locality)) else {
+        median_value <- if (intent == "rent") stats$median_rent else stats$median_price
+        rate <- if (intent == "rent") stats$median_rent_per_sqft else stats$median_price_per_sqft
+        lines <- c(lines, paste0("**", locality, "** (", if (is.null(market_bhk)) "all bedroom counts" else paste(market_bhk, "BHK"),
+          ", ", if (is.null(market_basis)) "all area bases" else market_basis, "): ", stats$listings, " listings; median ",
+          if (intent == "rent") "monthly rent" else "asking price", " ₹", format(round(median_value), big.mark = ",", scientific = FALSE),
+          "; median ₹", format(round(rate), big.mark = ",", scientific = FALSE), " per sq.ft", if (intent == "rent") " per month." else "."))
+      }
+    }
+    if (!length(localities)) lines <- "Which Hyderabad locality or localities would you like to compare, and are you interested in flats, houses, or rents?"
+    return(save_information_reply(session_id, session, paste(lines, collapse = "\n\n"), list(locality_statistics = summaries)))
+  }
+  if (action == "general") return(save_information_reply(session_id, session,
+    "I can help estimate Hyderabad flat and house purchase prices or monthly rents, and compare advertised listings by locality. What would you like to explore?"))
   
   # ----------------------------------------
   # Merge new and previous information
@@ -368,7 +419,7 @@ process_conversation <- function(session_id, user_message, market_data = NULL) {
   missing_optional <- get_missing_optional_fields(validated_property)
   
   prediction_result <- NULL
-  prediction_error <- NULL
+    prediction_error <- NULL
   market_context <- NULL
   market_error <- NULL
   property_insight <- NULL
@@ -390,15 +441,11 @@ process_conversation <- function(session_id, user_message, market_data = NULL) {
       )
     } else {
       # Use LLM reply if it naturally asks for the required field; otherwise use generator
-      llm_reply <- trimws(as.character(extracted_property$reply))
-      if (nzchar(llm_reply) && !grepl("furnishing|balcon|bathroom|carpet|super", llm_reply, ignore.case = TRUE)) {
-        assistant_reply <- llm_reply
-      } else {
-        assistant_reply <- generate_followup_question(validation_result)
-      }
+      assistant_reply <- generate_followup_question(validation_result)
     }
     
-  } else if (!optional_already_asked && length(missing_optional) > 0) {
+  } else if (!optional_already_asked && length(missing_optional) > 0 &&
+    !grepl("skip|use defaults|no other details", user_message, ignore.case = TRUE)) {
     # --------------------------------------------------------
     # STAGE 2: Ask for optional fields (exactly once per session)
     # --------------------------------------------------------
@@ -406,14 +453,7 @@ process_conversation <- function(session_id, user_message, market_data = NULL) {
     session$optional_fields_asked <- TRUE
     is_ready_for_prediction <- FALSE
     
-    llm_reply <- trimws(as.character(extracted_property$reply))
-    # If LLM reply contains a friendly question asking for optional fields, use it;
-    # otherwise fallback to our structured conversational template.
-    if (nzchar(llm_reply) && grepl("furnishing|property|carpet|super|bathroom|balcon|optional", llm_reply, ignore.case = TRUE)) {
-      assistant_reply <- llm_reply
-    } else {
-      assistant_reply <- generate_optional_fields_prompt(validated_property)
-    }
+    assistant_reply <- generate_optional_fields_prompt(validated_property)
     
   } else {
     # --------------------------------------------------------
@@ -426,16 +466,18 @@ process_conversation <- function(session_id, user_message, market_data = NULL) {
     prediction_result <- tryCatch(
       route_prediction(validated_property),
       error = function(e) {
+        message("Model prediction failed: ", conditionMessage(e))
         prediction_error <<- conditionMessage(e)
         NULL
       }
     )
     
     # Generate Market Intelligence Context
+    if (!is.null(prediction_result)) validated_property <- prediction_result$property
     if (!is.null(prediction_result) && !is.null(market_data)) {
       market_property <- as.list(validated_property)
       if (is.null(market_property$area_source) || !nzchar(trimws(as.character(market_property$area_source)))) {
-        market_property$area_source <- "super"
+        market_property$area_source <- "Carpet"
       }
       market_context <- tryCatch(
         get_market_context(
@@ -452,6 +494,8 @@ process_conversation <- function(session_id, user_message, market_data = NULL) {
     
     # Generate AI Property Explanation
     if (!is.null(prediction_result)) {
+      session$last_prediction <- prediction_result
+      session$last_market_context <- market_context
       property_insight <- tryCatch(
         generate_property_insight(
           property = as.list(validated_property),
@@ -470,13 +514,14 @@ process_conversation <- function(session_id, user_message, market_data = NULL) {
         assistant_reply <- paste(
           "Your property details have been verified.",
           "Your ML-based price estimate is:",
-          prediction_result$prediction
+          prediction_result$prediction,
+          "This is a model estimate, not a guaranteed transaction price. Actual prices vary."
         )
       }
     } else {
       assistant_reply <- paste(
         "Your property details are valid, but I couldn't generate the estimate right now:",
-        if (!is.null(prediction_error)) prediction_error else "Please try again."
+        "The valuation model is temporarily unavailable. Please try again."
       )
     }
   }
@@ -500,6 +545,7 @@ process_conversation <- function(session_id, user_message, market_data = NULL) {
   # ----------------------------------------
   
   session$property <- validated_property
+  session$prediction_status <- if (!is_ready_for_prediction) "collecting" else if (is.null(prediction_result)) "failed" else "completed"
   session$updated_at <- Sys.time()
   
   PROPGPT_SESSIONS[[session_id]] <- session
@@ -522,13 +568,16 @@ process_conversation <- function(session_id, user_message, market_data = NULL) {
       intent = validated_property$intent,
       missing_fields = validation_result$missing_fields,
       errors = validation_result$errors,
-      prediction_error = prediction_error,
+      prediction_error = if (!is.null(prediction_error)) "The valuation model is temporarily unavailable." else NULL,
       market_context = market_context,
-      market_error = market_error,
+      market_error = if (!is.null(market_error)) "Listing comparisons are temporarily unavailable." else NULL,
       property_insight = property_insight,
-      insight_error = insight_error,
+      insight_error = if (!is.null(insight_error)) "The detailed explanation is temporarily unavailable." else NULL,
       property = validated_property,
       conversation_state = list(
+        stage = session$stage,
+        prediction_status = session$prediction_status,
+        previous_prediction = session$last_prediction$prediction,
         required_fields = list(
           query_area = validated_property$area,
           query_bhk = validated_property$bhk,
@@ -540,6 +589,8 @@ process_conversation <- function(session_id, user_message, market_data = NULL) {
           query_area_source = validated_property$area_source,
           query_Bathroom = validated_property$bathroom,
           query_Balcony = validated_property$balcony
+          , query_ownership = validated_property$ownership, query_facing = validated_property$facing,
+          query_buy_floor = validated_property$buy_floor, query_total_floors = validated_property$total_floors
         ),
         required_fields_complete = required_complete,
         optional_fields_asked = isTRUE(session$optional_fields_asked),
