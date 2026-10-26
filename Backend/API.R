@@ -16,6 +16,41 @@ library(plumber)
 api <- plumb("Plumber.R")
 api$setSerializer(serializer_json(auto_unbox = TRUE, null = "null", na = "null"))
 
+# Ensure CORS headers are attached on all unhandled errors (500) and 404s
+# so the browser never masks errors as CORS rejections
+api$setErrorHandler(function(req, res, err) {
+  origin <- req$HTTP_ORIGIN
+  if (is.null(origin) || !nzchar(origin)) origin <- req$HEADERS[["origin"]]
+  
+  res$setHeader("Access-Control-Allow-Origin", if (!is.null(origin) && nzchar(origin)) origin else "*")
+  res$setHeader("Access-Control-Allow-Credentials", "true")
+  res$setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, HEAD")
+  res$setHeader("Access-Control-Allow-Headers", "*")
+  res$setHeader("Access-Control-Allow-Private-Network", "true")
+  res$setHeader("Vary", "Origin")
+  res$status <- 500
+  
+  list(
+    error = "Internal server error",
+    details = conditionMessage(err)
+  )
+})
+
+api$set404Handler(function(req, res) {
+  origin <- req$HTTP_ORIGIN
+  if (is.null(origin) || !nzchar(origin)) origin <- req$HEADERS[["origin"]]
+  
+  res$setHeader("Access-Control-Allow-Origin", if (!is.null(origin) && nzchar(origin)) origin else "*")
+  res$setHeader("Access-Control-Allow-Credentials", "true")
+  res$setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, HEAD")
+  res$setHeader("Access-Control-Allow-Headers", "*")
+  res$setHeader("Access-Control-Allow-Private-Network", "true")
+  res$setHeader("Vary", "Origin")
+  res$status <- 404
+  
+  list(error = "Endpoint not found")
+})
+
 # ============================================================
 # OPENAPI / SWAGGER DOCUMENTATION
 # ============================================================
@@ -324,7 +359,7 @@ api$setApiSpec(function(spec) {
 
 port <- as.numeric(Sys.getenv("PORT", "8000"))
 api$run(
-  host = Sys.getenv("HOST", "127.0.0.1"),
+  host = Sys.getenv("HOST", "0.0.0.0"),
   port = port
 )
 

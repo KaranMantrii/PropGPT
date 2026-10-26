@@ -184,6 +184,4 @@ pred_price_flat <- function(
   )
 }
 
-# Alias for backwards compatibility
-pred_price_flat2 <- pred_price_flat
 

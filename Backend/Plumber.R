@@ -40,17 +40,54 @@ PROPGPT_MARKET_DATA <- initialize_market_intelligence(
 library(plumber)
 library(jsonlite)
 
+# Helper to set all CORS headers on response
+set_cors_headers <- function(req, res) {
+  origin <- req$HTTP_ORIGIN
+  if (is.null(origin) || !nzchar(origin)) {
+    origin <- req$HEADERS[["origin"]]
+  }
+  
+  # Allow all localhost/127.0.0.1 origins (any port), or any origin in CORS_ORIGINS
+  allowed_env <- Sys.getenv("CORS_ORIGINS", "*")
+  
+  is_allowed <- TRUE
+  if (!is.null(origin) && nzchar(origin)) {
+    if (identical(allowed_env, "*") || !nzchar(allowed_env)) {
+      is_allowed <- TRUE
+    } else {
+      allowed_origins <- trimws(strsplit(allowed_env, ",", fixed = TRUE)[[1]])
+      is_allowed <- origin %in% allowed_origins || 
+        grepl("^https?://(localhost|127\\.0\\.0\\.1)(:[0-9]+)?$", origin, ignore.case = TRUE)
+    }
+  }
+  
+  if (is_allowed) {
+    if (!is.null(origin) && nzchar(origin)) {
+      res$setHeader("Access-Control-Allow-Origin", origin)
+      res$setHeader("Access-Control-Allow-Credentials", "true")
+    } else {
+      res$setHeader("Access-Control-Allow-Origin", "*")
+    }
+  }
+  
+  res$setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, HEAD")
+  
+  req_headers <- req$HTTP_ACCESS_CONTROL_REQUEST_HEADERS
+  if (!is.null(req_headers) && nzchar(req_headers)) {
+    res$setHeader("Access-Control-Allow-Headers", req_headers)
+  } else {
+    res$setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization, Accept, Origin, User-Agent, X-Requested-With, Cache-Control")
+  }
+  
+  res$setHeader("Access-Control-Allow-Private-Network", "true")
+  res$setHeader("Access-Control-Max-Age", "86400")
+  res$setHeader("Vary", "Origin, Access-Control-Request-Headers")
+}
+
 #* Enable CORS for frontend access
 #* @filter cors
 cors <- function(req, res) {
-  allowed <- strsplit(Sys.getenv("CORS_ORIGINS", "http://127.0.0.1:5173,http://localhost:5173"), ",", fixed = TRUE)[[1]]
-  origin <- req$HTTP_ORIGIN
-  if (!is.null(origin) && origin %in% trimws(allowed)) {
-    res$setHeader("Access-Control-Allow-Origin", origin)
-    res$setHeader("Vary", "Origin")
-  }
-  res$setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
-  res$setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization, Accept, Origin, User-Agent")
+  set_cors_headers(req, res)
   
   if (identical(req$REQUEST_METHOD, "OPTIONS")) {
     res$status <- 200

@@ -30,7 +30,23 @@ async function request(path, options = {}, override) {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), path === '/chat' ? 195000 : 20000);
   try {
-    const res = await fetch(`${getApiBaseUrl(override)}${path}`, { ...options, signal: controller.signal });
+    const baseUrl = getApiBaseUrl(override);
+    let res;
+    try {
+      res = await fetch(`${baseUrl}${path}`, { ...options, signal: controller.signal });
+    } catch (fetchErr) {
+      // If direct fetch fails (e.g. CORS policy or network resolution error)
+      // and no explicit override was passed, retry using the same-origin relative path (Vite proxy)
+      if (fetchErr instanceof TypeError && baseUrl && !override && typeof window !== 'undefined') {
+        try {
+          res = await fetch(path, { ...options, signal: controller.signal });
+        } catch {
+          throw fetchErr;
+        }
+      } else {
+        throw fetchErr;
+      }
+    }
     const data = normalizeApiResponse(await res.json());
     if (!res.ok) throw new Error(data.error || data.reply || 'The request could not be completed. Please try again.');
     return data;
