@@ -223,8 +223,8 @@ export default function MessageBubble({
             />
           )}
 
-          {/* Interactive Property & Nearby Amenities Map */}
-          {message.map && message.map.center && (
+          {/* Interactive Property & Nearby Amenities Map - appears with the price card only at the same time */}
+          {Boolean(message.prediction && message.map && message.map.center) && (
             <div style={{ marginTop: '14px', width: '100%' }}>
               <PropertyMap mapData={message.map} />
             </div>
