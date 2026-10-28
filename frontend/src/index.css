@@ -228,6 +228,11 @@ h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-body, 'Inter', sans-serif) !important;
 }
 
+/* Dark theme filter for official OpenStreetMap tiles (100% Free & Open Source, No API Key Required) */
+.propgpt-map-container .leaflet-tile-pane {
+  filter: invert(100%) hue-rotate(180deg) brightness(85%) contrast(92%) saturate(50%);
+}
+
 .propgpt-map-container .leaflet-popup-content-wrapper {
   background: #171717 !important;
   color: var(--text-primary) !important;

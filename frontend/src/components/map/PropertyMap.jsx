@@ -174,12 +174,12 @@ export default function PropertyMap({ mapData, isLoading = false }) {
           scrollWheelZoom={true}
           style={{ height: '100%', width: '100%', background: '#080808' }}
         >
-          {/* CartoDB Dark Matter Tile Layer */}
+          {/* Official OpenStreetMap Standard Tile Layer (100% Free & Open Source, No API Key Required) */}
           <TileLayer
-            attribution='&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions" target="_blank" rel="noreferrer">CARTO</a>'
-            url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
-            subdomains="abcd"
+            attribution='&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">OpenStreetMap</a> contributors'
+            url="https://tile.openstreetmap.org/{z}/{x}/{y}.png"
             maxZoom={19}
+            className="propgpt-osm-tiles"
           />
 
           {/* 3 km Discovery Radius Circle */}
