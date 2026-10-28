@@ -1,5 +1,13 @@
 # Conversation Management
 
+if (!exists("get_locality_map", mode = "function")) {
+  if (file.exists("geospatial/map_router.R")) {
+    source("geospatial/map_router.R")
+  } else if (file.exists("Backend/geospatial/map_router.R")) {
+    source("Backend/geospatial/map_router.R")
+  }
+}
+
 # In-memory environment to store active sessions.
 # Each session has its own history and property data.
 
@@ -24,6 +32,7 @@ create_conversation_session <- function(session_id) {
     stage = "collect_required",
     last_prediction = NULL,
     last_market_context = NULL,
+    last_map = NULL,
     created_at = Sys.time(),
     updated_at = Sys.time()
   )
@@ -241,7 +250,8 @@ save_information_reply <- function(session_id, session, reply, market_context = 
   PROPGPT_SESSIONS[[session_id]] <- session
   list(session_id = session_id, reply = reply, prediction = NULL, prediction_success = FALSE,
     ready_for_prediction = FALSE, property = session$property, market_context = market_context,
-    error_code = error_code, conversation_state = list(stage = session$stage,
+    error_code = error_code,
+    map = if (!is.null(session$last_map)) session$last_map else NULL, conversation_state = list(stage = session$stage,
       optional_fields_asked = isTRUE(session$optional_fields_asked), prediction_ready = FALSE,
       prediction_status = if (is.null(error_code)) "information" else "error"))
 }
@@ -345,6 +355,7 @@ process_conversation <- function(session_id, user_message, market_data = NULL) {
     session$optional_fields_asked <- FALSE
     session$last_prediction <- NULL
     session$last_market_context <- NULL
+    session$last_map <- NULL
   }
   if (action == "explain" && !is.null(session$last_prediction)) {
     reply <- tryCatch(generate_property_insight(session$last_prediction$property, session$last_prediction,
@@ -407,6 +418,38 @@ process_conversation <- function(session_id, user_message, market_data = NULL) {
   
   # Use only the validated data from this point
   validated_property <- validation_result$data
+  
+  # ----------------------------------------
+  # Automatic Map and Nearby Amenities Retrieval
+  # ----------------------------------------
+  map_data <- session$last_map
+  current_locality <- if (!is_empty_value(validated_property$locality)) {
+    validated_property$locality
+  } else if (!is_empty_value(merged_property$locality)) {
+    merged_property$locality
+  } else {
+    NULL
+  }
+  
+  if (!is.null(current_locality) && is.character(current_locality) && nzchar(trimws(current_locality))) {
+    loc_clean <- trimws(current_locality)
+    prev_loc <- if (!is.null(session$last_map)) session$last_map$locality else NULL
+    
+    # Query if map hasn't been fetched yet, or if user changed the locality
+    if (is.null(map_data) || is.null(prev_loc) || !identical(tolower(trimws(prev_loc)), tolower(loc_clean))) {
+      new_map <- tryCatch({
+        get_locality_map(loc_clean, radius = 3000)
+      }, error = function(e) {
+        message("Map generation error for '", loc_clean, "': ", conditionMessage(e))
+        NULL
+      })
+      
+      if (!is.null(new_map)) {
+        map_data <- new_map
+        session$last_map <- new_map
+      }
+    }
+  }
   
   # ----------------------------------------
   # Two-Stage Decision Workflow
@@ -574,6 +617,7 @@ process_conversation <- function(session_id, user_message, market_data = NULL) {
       property_insight = property_insight,
       insight_error = if (!is.null(insight_error)) "The detailed explanation is temporarily unavailable." else NULL,
       property = validated_property,
+      map = map_data,
       conversation_state = list(
         stage = session$stage,
         prediction_status = session$prediction_status,

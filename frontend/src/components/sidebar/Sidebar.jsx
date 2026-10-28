@@ -86,7 +86,7 @@ export default function Sidebar({
           style={{
             position: 'fixed',
             inset: 0,
-            background: 'rgba(7, 10, 17, 0.75)',
+            background: 'rgba(8, 8, 8, 0.8)',
             backdropFilter: 'blur(8px)',
             zIndex: 45
           }}
@@ -98,9 +98,8 @@ export default function Sidebar({
         style={{
           width: '280px',
           height: '100vh',
-          background: 'rgba(13, 19, 32, 0.95)',
-          backdropFilter: 'blur(20px)',
-          borderRight: '1px solid rgba(255, 255, 255, 0.08)',
+          background: '#0D0D0D',
+          borderRight: '1px solid #292929',
           display: 'flex',
           flexDirection: 'column',
           zIndex: 50,
@@ -110,14 +109,14 @@ export default function Sidebar({
           left: 0,
           transition: 'transform 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
           transform: isMobileOpen ? 'translateX(0)' : 'translateX(-100%)',
-          boxShadow: isMobileOpen ? '0 0 40px rgba(0,0,0,0.8)' : 'none'
+          boxShadow: isMobileOpen ? '0 0 40px rgba(0,0,0,0.9)' : 'none'
         }}
         className="sidebar-desktop-visible"
       >
         {/* Header / Brand Cluster */}
         <div style={{
           padding: '20px 18px 14px',
-          borderBottom: '1px solid rgba(255, 255, 255, 0.06)',
+          borderBottom: '1px solid #292929',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between'
@@ -127,20 +126,20 @@ export default function Sidebar({
               width: '36px',
               height: '36px',
               borderRadius: '10px',
-              background: 'linear-gradient(135deg, #3B82F6 0%, #6366F1 50%, #A855F7 100%)',
+              background: 'linear-gradient(135deg, #FF1744 0%, #B00035 100%)',
               padding: '1px',
-              boxShadow: '0 0 16px rgba(99, 102, 241, 0.4)'
+              boxShadow: '0 0 16px rgba(255, 23, 68, 0.35)'
             }}>
               <div style={{
                 width: '100%',
                 height: '100%',
-                background: '#0D1320',
+                background: '#0D0D0D',
                 borderRadius: '9px',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center'
               }}>
-                <Building2 size={18} color="#C0C1FF" />
+                <Building2 size={18} color="#FF1744" />
               </div>
             </div>
 
@@ -151,7 +150,7 @@ export default function Sidebar({
                   fontWeight: 800,
                   fontSize: '18px',
                   letterSpacing: '-0.02em',
-                  color: '#FFFFFF'
+                  color: '#F5F5F5'
                 }}>
                   PropGPT
                 </span>
@@ -160,14 +159,14 @@ export default function Sidebar({
                   fontWeight: 700,
                   padding: '1px 6px',
                   borderRadius: '9999px',
-                  background: 'rgba(99, 102, 241, 0.18)',
-                  color: '#ADC6FF',
-                  border: '1px solid rgba(99, 102, 241, 0.3)'
+                  background: 'rgba(255, 23, 68, 0.12)',
+                  color: '#FF1744',
+                  border: '1px solid rgba(255, 23, 68, 0.25)'
                 }}>
                   v4.2 ML
                 </span>
               </div>
-              <span style={{ fontSize: '11px', color: '#64748B' }}>
+              <span style={{ fontSize: '11px', color: '#777777' }}>
                 Hyderabad Real Estate AI
               </span>
             </div>
@@ -181,7 +180,7 @@ export default function Sidebar({
                 display: 'none',
                 background: 'transparent',
                 border: 'none',
-                color: '#94A3B8',
+                color: '#B3B3B3',
                 cursor: 'pointer',
                 padding: '4px'
               }}
@@ -228,18 +227,30 @@ export default function Sidebar({
               justifyContent: 'space-between',
               padding: '10px 12px',
               borderRadius: '10px',
-              border: activeView === 'chat' ? '1px solid rgba(99, 102, 241, 0.4)' : '1px solid transparent',
-              background: activeView === 'chat' ? 'rgba(99, 102, 241, 0.15)' : 'transparent',
-              color: activeView === 'chat' ? '#FFFFFF' : '#94A3B8',
+              border: activeView === 'chat' ? '1px solid rgba(255, 23, 68, 0.35)' : '1px solid transparent',
+              background: activeView === 'chat' ? 'rgba(255, 23, 68, 0.1)' : 'transparent',
+              color: activeView === 'chat' ? '#F5F5F5' : '#B3B3B3',
               cursor: 'pointer',
               fontSize: '13px',
               fontWeight: activeView === 'chat' ? 600 : 500,
               transition: 'all 0.2s ease',
               textAlign: 'left'
             }}
+            onMouseEnter={(e) => {
+              if (activeView !== 'chat') {
+                e.currentTarget.style.background = '#171717';
+                e.currentTarget.style.color = '#F5F5F5';
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (activeView !== 'chat') {
+                e.currentTarget.style.background = 'transparent';
+                e.currentTarget.style.color = '#B3B3B3';
+              }
+            }}
           >
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-              <MessageSquare size={16} color={activeView === 'chat' ? '#38BDF8' : '#64748B'} />
+              <MessageSquare size={16} color={activeView === 'chat' ? '#FF1744' : '#777777'} />
               <span>AI Real Estate Chat</span>
             </div>
             {activeView === 'chat' && (
@@ -247,8 +258,8 @@ export default function Sidebar({
                 width: '6px',
                 height: '6px',
                 borderRadius: '50%',
-                background: '#38BDF8',
-                boxShadow: '0 0 8px #38BDF8'
+                background: '#FF1744',
+                boxShadow: '0 0 8px #FF1744'
               }} />
             )}
           </button>
@@ -265,18 +276,30 @@ export default function Sidebar({
               justifyContent: 'space-between',
               padding: '10px 12px',
               borderRadius: '10px',
-              border: activeView === 'predictor' ? '1px solid rgba(99, 102, 241, 0.4)' : '1px solid transparent',
-              background: activeView === 'predictor' ? 'rgba(99, 102, 241, 0.15)' : 'transparent',
-              color: activeView === 'predictor' ? '#FFFFFF' : '#94A3B8',
+              border: activeView === 'predictor' ? '1px solid rgba(255, 23, 68, 0.35)' : '1px solid transparent',
+              background: activeView === 'predictor' ? 'rgba(255, 23, 68, 0.1)' : 'transparent',
+              color: activeView === 'predictor' ? '#F5F5F5' : '#B3B3B3',
               cursor: 'pointer',
               fontSize: '13px',
               fontWeight: activeView === 'predictor' ? 600 : 500,
               transition: 'all 0.2s ease',
               textAlign: 'left'
             }}
+            onMouseEnter={(e) => {
+              if (activeView !== 'predictor') {
+                e.currentTarget.style.background = '#171717';
+                e.currentTarget.style.color = '#F5F5F5';
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (activeView !== 'predictor') {
+                e.currentTarget.style.background = 'transparent';
+                e.currentTarget.style.color = '#B3B3B3';
+              }
+            }}
           >
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-              <Calculator size={16} color={activeView === 'predictor' ? '#A855F7' : '#64748B'} />
+              <Calculator size={16} color={activeView === 'predictor' ? '#FF1744' : '#777777'} />
               <span>Manual Price Predictor</span>
             </div>
             {activeView === 'predictor' && (
@@ -284,8 +307,8 @@ export default function Sidebar({
                 width: '6px',
                 height: '6px',
                 borderRadius: '50%',
-                background: '#A855F7',
-                boxShadow: '0 0 8px #A855F7'
+                background: '#FF1744',
+                boxShadow: '0 0 8px #FF1744'
               }} />
             )}
           </button>
@@ -297,12 +320,12 @@ export default function Sidebar({
             display: 'flex',
             alignItems: 'center',
             gap: '8px',
-            background: 'rgba(11, 17, 30, 0.7)',
-            border: '1px solid rgba(255, 255, 255, 0.08)',
+            background: '#1C1C1C',
+            border: '1px solid #292929',
             borderRadius: '8px',
             padding: '6px 10px'
           }}>
-            <Search size={14} color="#64748B" />
+            <Search size={14} color="#777777" />
             <input
               type="text"
               placeholder="Search previous valuations..."
@@ -311,7 +334,7 @@ export default function Sidebar({
               style={{
                 background: 'transparent',
                 border: 'none',
-                color: '#F8FAFC',
+                color: '#F5F5F5',
                 fontSize: '12px',
                 outline: 'none',
                 width: '100%'
@@ -320,7 +343,7 @@ export default function Sidebar({
             {searchQuery && (
               <button
                 onClick={() => setSearchQuery('')}
-                style={{ background: 'transparent', border: 'none', color: '#64748B', cursor: 'pointer', padding: 0 }}
+                style={{ background: 'transparent', border: 'none', color: '#777777', cursor: 'pointer', padding: 0 }}
               >
                 <X size={12} />
               </button>
@@ -347,7 +370,7 @@ export default function Sidebar({
             fontWeight: 700,
             textTransform: 'uppercase',
             letterSpacing: '0.06em',
-            color: '#64748B'
+            color: '#777777'
           }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
               <History size={12} />
@@ -359,7 +382,7 @@ export default function Sidebar({
           {/* Group: Today */}
           {grouped.today.length > 0 && (
             <div>
-              <div style={{ fontSize: '10px', color: '#475569', fontWeight: 600, padding: '2px 8px 4px', textTransform: 'uppercase' }}>
+              <div style={{ fontSize: '10px', color: '#777777', fontWeight: 600, padding: '2px 8px 4px', textTransform: 'uppercase' }}>
                 Today
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
@@ -371,7 +394,7 @@ export default function Sidebar({
           {/* Group: Previous 7 Days */}
           {grouped.previous7Days.length > 0 && (
             <div>
-              <div style={{ fontSize: '10px', color: '#475569', fontWeight: 600, padding: '2px 8px 4px', textTransform: 'uppercase' }}>
+              <div style={{ fontSize: '10px', color: '#777777', fontWeight: 600, padding: '2px 8px 4px', textTransform: 'uppercase' }}>
                 Previous 7 Days
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
@@ -383,7 +406,7 @@ export default function Sidebar({
           {/* Group: Older */}
           {grouped.older.length > 0 && (
             <div>
-              <div style={{ fontSize: '10px', color: '#475569', fontWeight: 600, padding: '2px 8px 4px', textTransform: 'uppercase' }}>
+              <div style={{ fontSize: '10px', color: '#777777', fontWeight: 600, padding: '2px 8px 4px', textTransform: 'uppercase' }}>
                 Older Valuations
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
@@ -396,7 +419,7 @@ export default function Sidebar({
             <div style={{
               textAlign: 'center',
               padding: '24px 12px',
-              color: '#64748B',
+              color: '#777777',
               fontSize: '12px'
             }}>
               No matching valuations found.
@@ -407,8 +430,8 @@ export default function Sidebar({
         {/* Bottom Cluster: Status & Settings */}
         <div style={{
           padding: '12px 14px',
-          borderTop: '1px solid rgba(255, 255, 255, 0.06)',
-          background: 'rgba(9, 14, 23, 0.95)',
+          borderTop: '1px solid #292929',
+          background: '#0D0D0D',
           display: 'flex',
           flexDirection: 'column',
           gap: '10px'
@@ -420,8 +443,8 @@ export default function Sidebar({
             justifyContent: 'space-between',
             padding: '8px 10px',
             borderRadius: '8px',
-            background: 'rgba(255, 255, 255, 0.03)',
-            border: '1px solid rgba(255, 255, 255, 0.05)'
+            background: '#171717',
+            border: '1px solid #292929'
           }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               <span style={{
@@ -436,7 +459,7 @@ export default function Sidebar({
                   height: '100%',
                   width: '100%',
                   borderRadius: '50%',
-                  background: backendStatus === 'online' ? '#34D399' : '#F59E0B',
+                  background: backendStatus === 'online' ? '#22C55E' : '#F59E0B',
                   opacity: 0.75,
                   animation: 'pulseGlow 2s infinite'
                 }} />
@@ -446,14 +469,14 @@ export default function Sidebar({
                   borderRadius: '50%',
                   height: '8px',
                   width: '8px',
-                  background: backendStatus === 'online' ? '#10B981' : '#D97706'
+                  background: backendStatus === 'online' ? '#22C55E' : '#F59E0B'
                 }} />
               </span>
               <div style={{ display: 'flex', flexDirection: 'column' }}>
-                <span style={{ fontSize: '11px', fontWeight: 600, color: '#E2E8F0', lineHeight: 1.2 }}>
+                <span style={{ fontSize: '11px', fontWeight: 600, color: '#F5F5F5', lineHeight: 1.2 }}>
                   Hyderabad Micro-Market
                 </span>
-                <span style={{ fontSize: '10px', color: '#64748B', fontFamily: 'monospace' }}>
+                <span style={{ fontSize: '10px', color: '#777777', fontFamily: 'monospace' }}>
                   v2025.1 ML :8000
                 </span>
               </div>
@@ -463,9 +486,9 @@ export default function Sidebar({
               fontSize: '10px',
               padding: '2px 6px',
               borderRadius: '4px',
-              background: backendStatus === 'online' ? 'rgba(16, 185, 129, 0.15)' : 'rgba(245, 158, 11, 0.15)',
-              color: backendStatus === 'online' ? '#34D399' : '#FBBF24',
-              border: `1px solid ${backendStatus === 'online' ? 'rgba(16, 185, 129, 0.3)' : 'rgba(245, 158, 11, 0.3)'}`,
+              background: backendStatus === 'online' ? 'rgba(34, 197, 94, 0.15)' : 'rgba(245, 158, 11, 0.15)',
+              color: backendStatus === 'online' ? '#22C55E' : '#F59E0B',
+              border: `1px solid ${backendStatus === 'online' ? 'rgba(34, 197, 94, 0.3)' : 'rgba(245, 158, 11, 0.3)'}`,
               fontWeight: 600
             }}>
               {backendStatus === 'online' ? 'Active' : 'Offline'}
@@ -486,25 +509,25 @@ export default function Sidebar({
               borderRadius: '8px',
               background: 'transparent',
               border: '1px solid transparent',
-              color: '#94A3B8',
+              color: '#B3B3B3',
               cursor: 'pointer',
               fontSize: '12px',
               transition: 'all 0.2s ease'
             }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.background = 'rgba(255, 255, 255, 0.05)';
-              e.currentTarget.style.color = '#FFFFFF';
+              e.currentTarget.style.background = '#171717';
+              e.currentTarget.style.color = '#F5F5F5';
             }}
             onMouseLeave={(e) => {
               e.currentTarget.style.background = 'transparent';
-              e.currentTarget.style.color = '#94A3B8';
+              e.currentTarget.style.color = '#B3B3B3';
             }}
           >
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <Settings size={15} />
+              <Settings size={15} color="#777777" />
               <span>Valuation Settings & Models</span>
             </div>
-            <ChevronRight size={14} color="#64748B" />
+            <ChevronRight size={14} color="#777777" />
           </button>
         </div>
       </aside>
@@ -530,15 +553,15 @@ export default function Sidebar({
           justifyContent: 'space-between',
           padding: '8px 10px',
           borderRadius: '8px',
-          background: isActive ? 'rgba(99, 102, 241, 0.15)' : 'transparent',
-          border: isActive ? '1px solid rgba(99, 102, 241, 0.35)' : '1px solid transparent',
+          background: isActive ? 'rgba(255, 23, 68, 0.1)' : 'transparent',
+          border: isActive ? '1px solid rgba(255, 23, 68, 0.3)' : '1px solid transparent',
           cursor: 'pointer',
           position: 'relative',
           transition: 'all 0.2s ease',
           group: 'true'
         }}
         onMouseEnter={(e) => {
-          if (!isActive) e.currentTarget.style.background = 'rgba(255, 255, 255, 0.04)';
+          if (!isActive) e.currentTarget.style.background = '#171717';
         }}
         onMouseLeave={(e) => {
           if (!isActive) e.currentTarget.style.background = 'transparent';
@@ -560,24 +583,24 @@ export default function Sidebar({
               }}
               style={{
                 flex: 1,
-                background: 'rgba(11, 17, 30, 0.95)',
-                border: '1px solid #6366F1',
+                background: '#1C1C1C',
+                border: '1px solid #FF1744',
                 borderRadius: '4px',
                 padding: '3px 6px',
-                color: '#FFFFFF',
+                color: '#F5F5F5',
                 fontSize: '12px',
                 outline: 'none'
               }}
             />
             <button
               onClick={(e) => handleSaveRename(e, session.id)}
-              style={{ background: '#10B981', border: 'none', color: '#FFF', borderRadius: '4px', padding: '3px', cursor: 'pointer' }}
+              style={{ background: '#22C55E', border: 'none', color: '#FFF', borderRadius: '4px', padding: '3px', cursor: 'pointer' }}
             >
               <Check size={12} />
             </button>
             <button
               onClick={handleCancelRename}
-              style={{ background: 'transparent', border: 'none', color: '#94A3B8', padding: '3px', cursor: 'pointer' }}
+              style={{ background: 'transparent', border: 'none', color: '#777777', padding: '3px', cursor: 'pointer' }}
             >
               <X size={12} />
             </button>
@@ -585,12 +608,12 @@ export default function Sidebar({
         ) : (
           <>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', overflow: 'hidden' }}>
-              <MessageSquare size={13} color={isActive ? '#38BDF8' : '#64748B'} style={{ flexShrink: 0 }} />
+              <MessageSquare size={13} color={isActive ? '#FF1744' : '#777777'} style={{ flexShrink: 0 }} />
               <div style={{ display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
                 <span style={{
                   fontSize: '12px',
                   fontWeight: isActive ? 600 : 400,
-                  color: isActive ? '#FFFFFF' : '#CBD5E1',
+                  color: isActive ? '#F5F5F5' : '#B3B3B3',
                   overflow: 'hidden',
                   textOverflow: 'ellipsis',
                   whiteSpace: 'nowrap'
@@ -598,7 +621,7 @@ export default function Sidebar({
                   {session.title}
                 </span>
                 {session.propertyType && (
-                  <span style={{ fontSize: '10px', color: '#64748B' }}>
+                  <span style={{ fontSize: '10px', color: '#777777' }}>
                     {session.propertyType}
                   </span>
                 )}
@@ -622,7 +645,7 @@ export default function Sidebar({
                 style={{
                   background: 'transparent',
                   border: 'none',
-                  color: '#94A3B8',
+                  color: '#777777',
                   padding: '3px',
                   cursor: 'pointer',
                   borderRadius: '4px'
@@ -636,7 +659,7 @@ export default function Sidebar({
                 style={{
                   background: 'transparent',
                   border: 'none',
-                  color: '#F87171',
+                  color: '#EF4444',
                   padding: '3px',
                   cursor: 'pointer',
                   borderRadius: '4px'

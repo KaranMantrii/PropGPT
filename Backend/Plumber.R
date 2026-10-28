@@ -19,6 +19,7 @@ source("area_conversion.R")
 source("Category_Normalization.R")
 source("Validation.R")
 source("Model_router.R")
+source("geospatial/map_router.R")
 source("Conversation.R")
 
 # Initialize datasets once at backend startup

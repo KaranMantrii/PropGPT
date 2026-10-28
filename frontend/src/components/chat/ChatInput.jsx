@@ -98,53 +98,56 @@ export default function ChatInput({
 
     try {
       setSpeechError(null);
-      recognitionRef.current?.dispose();
-      setInterimText('');
-      const recognition = createSpeechSession({
-        SpeechRecognition, initialText: input, preferences: getPreferences(),
-        onText: setInput, onInterim: setInterimText,
-        onListening: setIsListening, onError: setSpeechError
+      const session = createSpeechSession({
+        onInterim: (text) => setInterimText(text),
+        onFinal: (text) => {
+          setInput((prev) => (prev ? prev + ' ' + text : text));
+          setInterimText('');
+        },
+        onError: (err) => {
+          setSpeechError(err);
+          setIsListening(false);
+          setTimeout(() => setSpeechError(null), 6000);
+        },
+        onEnd: () => {
+          setIsListening(false);
+        }
       });
-
-      recognitionRef.current = recognition;
-      recognition.start();
-    } catch (err) {
-      console.warn("Speech recognition error:", err);
+      recognitionRef.current = session;
+      session.start();
+      setIsListening(true);
+    } catch (e) {
+      console.warn("Speech init failed:", e);
+      setSpeechError("Unable to initialize microphone. Check permissions.");
       setIsListening(false);
-      setSpeechError("Could not start microphone.");
+      setTimeout(() => setSpeechError(null), 5000);
     }
   };
 
+  // Simulated Document attachment upload
   const handleFileUpload = (e) => {
     const file = e.target.files?.[0];
     if (file) {
-      setAttachedDoc({ name: file.name, size: (file.size / 1024).toFixed(1) + ' KB' });
+      setAttachedDoc({ name: file.name, size: file.size });
     }
   };
 
-  const displayValue = interimText
-    ? (input ? `${input} ${interimText}` : interimText)
-    : input;
+  const displayValue = input + (interimText ? (input ? ' ' : '') + interimText : '');
 
   return (
-    <div style={{
-      width: '100%',
-      maxWidth: '820px',
-      margin: '0 auto',
-      position: 'relative'
-    }}>
-      {/* Speech Error Banner */}
+    <div style={{ maxWidth: '820px', margin: '0 auto', width: '100%' }}>
+      {/* Voice Error Notification Banner */}
       {speechError && (
         <div style={{
           display: 'flex',
           alignItems: 'center',
           gap: '8px',
           background: 'rgba(239, 68, 68, 0.15)',
-          border: '1px solid rgba(239, 68, 68, 0.35)',
+          border: '1px solid #EF4444',
           borderRadius: '10px',
           padding: '8px 12px',
           marginBottom: '8px',
-          color: '#FCA5A5',
+          color: '#F5F5F5',
           fontSize: '12px'
         }}>
           <AlertCircle size={14} color="#EF4444" />
@@ -152,14 +155,13 @@ export default function ChatInput({
         </div>
       )}
 
-      {/* Main Glassmorphic Composer Container */}
+      {/* Main Composer Container (Input background #1C1C1C, Borders #292929) */}
       <div style={{
-        background: 'rgba(20, 28, 46, 0.88)',
-        backdropFilter: 'blur(20px)',
-        border: '1px solid rgba(99, 102, 241, 0.25)',
+        background: '#1C1C1C',
+        border: '1px solid #292929',
         borderRadius: '20px',
         padding: '10px 14px',
-        boxShadow: '0 16px 40px -10px rgba(0, 0, 0, 0.6), 0 0 25px rgba(99, 102, 241, 0.15)',
+        boxShadow: '0 16px 40px -10px rgba(0, 0, 0, 0.7)',
         transition: 'all 0.2s ease',
         display: 'flex',
         flexDirection: 'column',
@@ -184,17 +186,17 @@ export default function ChatInput({
                 gap: '6px',
                 padding: '4px 10px',
                 borderRadius: '9999px',
-                background: selectedLocality ? 'rgba(56, 189, 248, 0.15)' : 'rgba(255, 255, 255, 0.05)',
-                border: selectedLocality ? '1px solid rgba(56, 189, 248, 0.3)' : '1px solid rgba(255, 255, 255, 0.08)',
-                color: selectedLocality ? '#38BDF8' : '#CBD5E1',
+                background: selectedLocality ? 'rgba(255, 23, 68, 0.12)' : '#171717',
+                border: selectedLocality ? '1px solid rgba(255, 23, 68, 0.3)' : '1px solid #292929',
+                color: selectedLocality ? '#FF1744' : '#B3B3B3',
                 fontSize: '11px',
                 fontWeight: 600,
                 cursor: 'pointer'
               }}
             >
-              <MapPin size={12} color={selectedLocality ? '#38BDF8' : '#94A3B8'} />
+              <MapPin size={12} color={selectedLocality ? '#FF1744' : '#777777'} />
               <span>{selectedLocality ? selectedLocality : 'Hyderabad All Micro-Markets'}</span>
-              <ChevronDown size={11} color="#64748B" />
+              <ChevronDown size={11} color="#777777" />
             </button>
 
             {/* Attached Doc Badge */}
@@ -203,18 +205,18 @@ export default function ChatInput({
                 display: 'flex',
                 alignItems: 'center',
                 gap: '5px',
-                background: 'rgba(99, 102, 241, 0.15)',
-                border: '1px solid rgba(99, 102, 241, 0.3)',
+                background: 'rgba(255, 23, 68, 0.12)',
+                border: '1px solid rgba(255, 23, 68, 0.3)',
                 borderRadius: '9999px',
                 padding: '3px 8px',
                 fontSize: '11px',
-                color: '#C0C1FF'
+                color: '#FF1744'
               }}>
                 <FileText size={11} />
                 <span>{attachedDoc.name}</span>
                 <button
                   onClick={() => setAttachedDoc(null)}
-                  style={{ background: 'transparent', border: 'none', color: '#94A3B8', cursor: 'pointer', padding: 0 }}
+                  style={{ background: 'transparent', border: 'none', color: '#777777', cursor: 'pointer', padding: 0 }}
                 >
                   ×
                 </button>
@@ -229,8 +231,8 @@ export default function ChatInput({
                   top: '100%',
                   left: 0,
                   marginTop: '6px',
-                  background: '#0D1320',
-                  border: '1px solid rgba(99, 102, 241, 0.3)',
+                  background: '#171717',
+                  border: '1px solid #292929',
                   borderRadius: '12px',
                   boxShadow: '0 10px 30px rgba(0,0,0,0.8)',
                   padding: '8px',
@@ -246,9 +248,9 @@ export default function ChatInput({
                     padding: '6px 8px',
                     borderRadius: '6px',
                     fontSize: '12px',
-                    color: !selectedLocality ? '#38BDF8' : '#94A3B8',
+                    color: !selectedLocality ? '#FF1744' : '#B3B3B3',
                     cursor: 'pointer',
-                    background: !selectedLocality ? 'rgba(56, 189, 248, 0.1)' : 'transparent'
+                    background: !selectedLocality ? 'rgba(255, 23, 68, 0.1)' : 'transparent'
                   }}
                 >
                   All Hyderabad Micro-Markets
@@ -261,11 +263,11 @@ export default function ChatInput({
                       padding: '6px 8px',
                       borderRadius: '6px',
                       fontSize: '12px',
-                      color: selectedLocality === loc ? '#38BDF8' : '#E2E8F0',
+                      color: selectedLocality === loc ? '#FF1744' : '#F5F5F5',
                       cursor: 'pointer',
-                      background: selectedLocality === loc ? 'rgba(56, 189, 248, 0.1)' : 'transparent'
+                      background: selectedLocality === loc ? 'rgba(255, 23, 68, 0.1)' : 'transparent'
                     }}
-                    onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.05)'}
+                    onMouseEnter={(e) => e.currentTarget.style.background = '#1C1C1C'}
                     onMouseLeave={(e) => {
                       if (selectedLocality !== loc) e.currentTarget.style.background = 'transparent';
                     }}
@@ -277,8 +279,8 @@ export default function ChatInput({
             )}
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11px', color: '#64748B' }}>
-            <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#10B981' }} />
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11px', color: '#777777' }}>
+            <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#22C55E' }} />
             <span>Hyderabad listing datasets</span>
           </div>
         </div>
@@ -301,9 +303,9 @@ export default function ChatInput({
               width: '36px',
               height: '36px',
               borderRadius: '10px',
-              background: 'rgba(255, 255, 255, 0.05)',
-              border: '1px solid rgba(255, 255, 255, 0.08)',
-              color: '#94A3B8',
+              background: '#171717',
+              border: '1px solid #292929',
+              color: '#777777',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
@@ -312,12 +314,12 @@ export default function ChatInput({
               transition: 'all 0.2s'
             }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)';
-              e.currentTarget.style.color = '#FFFFFF';
+              e.currentTarget.style.background = '#292929';
+              e.currentTarget.style.color = '#F5F5F5';
             }}
             onMouseLeave={(e) => {
-              e.currentTarget.style.background = 'rgba(255, 255, 255, 0.05)';
-              e.currentTarget.style.color = '#94A3B8';
+              e.currentTarget.style.background = '#171717';
+              e.currentTarget.style.color = '#777777';
             }}
           >
             <Paperclip size={16} />
@@ -342,7 +344,7 @@ export default function ChatInput({
               background: 'transparent',
               border: 'none',
               outline: 'none',
-              color: '#FFFFFF',
+              color: '#F5F5F5',
               fontSize: '14px',
               lineHeight: 1.5,
               resize: 'none',
@@ -361,9 +363,9 @@ export default function ChatInput({
               width: '36px',
               height: '36px',
               borderRadius: '10px',
-              background: isListening ? 'rgba(239, 68, 68, 0.2)' : 'rgba(255, 255, 255, 0.05)',
-              border: isListening ? '1px solid rgba(239, 68, 68, 0.4)' : '1px solid rgba(255, 255, 255, 0.08)',
-              color: isListening ? '#EF4444' : '#94A3B8',
+              background: isListening ? 'rgba(239, 68, 68, 0.2)' : '#171717',
+              border: isListening ? '1px solid #EF4444' : '1px solid #292929',
+              color: isListening ? '#EF4444' : '#777777',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
@@ -374,14 +376,14 @@ export default function ChatInput({
             }}
             onMouseEnter={(e) => {
               if (!isListening) {
-                e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)';
-                e.currentTarget.style.color = '#FFFFFF';
+                e.currentTarget.style.background = '#292929';
+                e.currentTarget.style.color = '#F5F5F5';
               }
             }}
             onMouseLeave={(e) => {
               if (!isListening) {
-                e.currentTarget.style.background = 'rgba(255, 255, 255, 0.05)';
-                e.currentTarget.style.color = '#94A3B8';
+                e.currentTarget.style.background = '#171717';
+                e.currentTarget.style.color = '#777777';
               }
             }}
           >
@@ -404,7 +406,7 @@ export default function ChatInput({
             )}
           </button>
 
-          {/* Submit Arrow Button */}
+          {/* Submit Arrow Button (Primary Crimson Red) */}
           <button
             type="button"
             onClick={handleSubmit}
@@ -415,10 +417,10 @@ export default function ChatInput({
               height: '36px',
               borderRadius: '10px',
               background: (!input.trim() && !interimText.trim() && !attachedDoc) || isLoading
-                ? 'rgba(255, 255, 255, 0.05)'
-                : 'linear-gradient(135deg, #3B82F6 0%, #6366F1 50%, #A855F7 100%)',
-              border: 'none',
-              color: '#FFFFFF',
+                ? '#171717'
+                : 'linear-gradient(135deg, #FF1744 0%, #B00035 100%)',
+              border: (!input.trim() && !interimText.trim() && !attachedDoc) || isLoading ? '1px solid #292929' : 'none',
+              color: (!input.trim() && !interimText.trim() && !attachedDoc) || isLoading ? '#525252' : '#FFFFFF',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
@@ -426,8 +428,7 @@ export default function ChatInput({
               flexShrink: 0,
               boxShadow: (!input.trim() && !interimText.trim() && !attachedDoc) || isLoading
                 ? 'none'
-                : '0 0 16px rgba(99, 102, 241, 0.45)',
-              opacity: (!input.trim() && !interimText.trim() && !attachedDoc) || isLoading ? 0.4 : 1,
+                : '0 0 16px rgba(255, 23, 68, 0.35)',
               transition: 'all 0.2s'
             }}
           >
@@ -440,7 +441,7 @@ export default function ChatInput({
       <div style={{
         textAlign: 'center',
         fontSize: '11px',
-        color: '#64748B',
+        color: '#777777',
         marginTop: '8px'
       }}>
         Estimates use trained models and advertised listings. Actual prices vary; this is not a certified appraisal.

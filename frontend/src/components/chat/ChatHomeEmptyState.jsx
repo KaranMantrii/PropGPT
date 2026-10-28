@@ -8,7 +8,6 @@ const SUGGESTION_CARDS = [
   {
     title: "3 BHK Flat in Kokapet 1800 sqft",
     tag: "Flat Purchase",
-    tagColor: "cyan",
     description: "Estimate a flat purchase price and review available comparable listings.",
     metric: "Ask for an estimate",
     corridor: "Kokapet",
@@ -18,7 +17,6 @@ const SUGGESTION_CARDS = [
   {
     title: "2 BHK Flat in Kukatpally Resale 1200 sqft",
     tag: "Resale Yield",
-    tagColor: "purple",
     description: "Value a resale flat using its area, bedrooms and available property details.",
     metric: "Ask for an estimate",
     corridor: "Kukatpally",
@@ -28,7 +26,6 @@ const SUGGESTION_CARDS = [
   {
     title: "4 BHK Independent Villa in Jubilee Hills 3200 sqft",
     tag: "Luxury Corridor",
-    tagColor: "indigo",
     description: "Estimate an independent house purchase price with the house valuation model.",
     metric: "Ask for an estimate",
     corridor: "Jubilee Hills",
@@ -38,7 +35,6 @@ const SUGGESTION_CARDS = [
   {
     title: "2 BHK Rental in Gachibowli Furnished 1350 sqft",
     tag: "IT Corridor Rental",
-    tagColor: "emerald",
     description: "Estimate monthly rent and compare advertised rental listings where available.",
     metric: "Ask for monthly rent",
     corridor: "Gachibowli",
@@ -66,17 +62,17 @@ export default function ChatHomeEmptyState({ onSelectPrompt }) {
         gap: '8px',
         padding: '5px 14px',
         borderRadius: '9999px',
-        background: 'rgba(20, 28, 46, 0.85)',
-        border: '1px solid rgba(99, 102, 241, 0.3)',
-        boxShadow: '0 0 20px rgba(99, 102, 241, 0.15)',
+        background: '#171717',
+        border: '1px solid #292929',
+        boxShadow: '0 0 20px rgba(0, 0, 0, 0.5)',
         marginBottom: '22px'
       }}>
-        <Sparkles size={14} color="#C0C1FF" />
-        <span style={{ fontSize: '12px', fontWeight: 500, color: '#E2E8F0' }}>
+        <Sparkles size={14} color="#FF1744" />
+        <span style={{ fontSize: '12px', fontWeight: 500, color: '#F5F5F5' }}>
           PropGPT Hyderabad Real Estate Engine
         </span>
-        <span style={{ width: '4px', height: '4px', borderRadius: '50%', background: '#64748B' }} />
-        <span style={{ fontSize: '12px', fontWeight: 700, color: '#38BDF8' }}>
+        <span style={{ width: '4px', height: '4px', borderRadius: '50%', background: '#777777' }} />
+        <span style={{ fontSize: '12px', fontWeight: 700, color: '#FF1744' }}>
           Flats · Houses · Rentals
         </span>
       </div>
@@ -87,23 +83,23 @@ export default function ChatHomeEmptyState({ onSelectPrompt }) {
           position: 'absolute',
           inset: '-8px',
           borderRadius: '24px',
-          background: 'linear-gradient(135deg, #3B82F6 0%, #6366F1 50%, #A855F7 100%)',
+          background: 'linear-gradient(135deg, #FF1744 0%, #B00035 50%, #6A003F 100%)',
           filter: 'blur(22px)',
-          opacity: 0.35
+          opacity: 0.28
         }} />
         <div style={{
           position: 'relative',
           width: '68px',
           height: '68px',
           borderRadius: '20px',
-          background: 'rgba(26, 31, 45, 0.85)',
-          border: '1px solid rgba(255, 255, 255, 0.15)',
+          background: '#171717',
+          border: '1px solid #292929',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          boxShadow: '0 10px 30px rgba(0, 0, 0, 0.4)'
+          boxShadow: '0 10px 30px rgba(0, 0, 0, 0.6)'
         }}>
-          <Building2 size={32} color="#C0C1FF" />
+          <Building2 size={32} color="#FF1744" />
           <div style={{
             position: 'absolute',
             bottom: '-4px',
@@ -111,11 +107,11 @@ export default function ChatHomeEmptyState({ onSelectPrompt }) {
             width: '24px',
             height: '24px',
             borderRadius: '50%',
-            background: 'linear-gradient(135deg, #2563EB 0%, #38BDF8 100%)',
+            background: 'linear-gradient(135deg, #FF1744 0%, #B00035 100%)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            boxShadow: '0 0 10px rgba(56, 189, 248, 0.5)'
+            boxShadow: '0 0 10px rgba(255, 23, 68, 0.5)'
           }}>
             <Sparkles size={13} color="#FFFFFF" />
           </div>
@@ -129,7 +125,7 @@ export default function ChatHomeEmptyState({ onSelectPrompt }) {
         fontWeight: 800,
         letterSpacing: '-0.025em',
         lineHeight: 1.25,
-        color: '#FFFFFF',
+        color: '#F5F5F5',
         maxWidth: '640px',
         marginBottom: '10px'
       }}>
@@ -139,7 +135,7 @@ export default function ChatHomeEmptyState({ onSelectPrompt }) {
       {/* Subtext */}
       <p style={{
         fontSize: '14px',
-        color: '#94A3B8',
+        color: '#B3B3B3',
         maxWidth: '560px',
         lineHeight: 1.6,
         marginBottom: '26px'
@@ -170,7 +166,8 @@ export default function ChatHomeEmptyState({ onSelectPrompt }) {
                 display: 'flex',
                 flexDirection: 'column',
                 justifyContent: 'space-between',
-                border: '1px solid rgba(255, 255, 255, 0.08)'
+                background: '#171717',
+                border: '1px solid #292929'
               }}
             >
               {/* Subtle top edge accent */}
@@ -180,7 +177,7 @@ export default function ChatHomeEmptyState({ onSelectPrompt }) {
                 left: 0,
                 right: 0,
                 height: '1px',
-                background: 'linear-gradient(90deg, transparent, rgba(99, 102, 241, 0.3), transparent)'
+                background: 'linear-gradient(90deg, transparent, rgba(255, 23, 68, 0.25), transparent)'
               }} />
 
               <div>
@@ -190,11 +187,11 @@ export default function ChatHomeEmptyState({ onSelectPrompt }) {
                       width: '28px',
                       height: '28px',
                       borderRadius: '8px',
-                      background: 'rgba(99, 102, 241, 0.15)',
+                      background: 'rgba(255, 23, 68, 0.1)',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
-                      color: '#C0C1FF'
+                      color: '#FF1744'
                     }}>
                       <Icon size={16} />
                     </div>
@@ -203,20 +200,20 @@ export default function ChatHomeEmptyState({ onSelectPrompt }) {
                       fontWeight: 700,
                       padding: '2px 8px',
                       borderRadius: '9999px',
-                      background: card.tagColor === 'emerald' ? 'rgba(16, 185, 129, 0.15)' : 'rgba(56, 189, 248, 0.15)',
-                      color: card.tagColor === 'emerald' ? '#34D399' : '#38BDF8',
-                      border: `1px solid ${card.tagColor === 'emerald' ? 'rgba(16, 185, 129, 0.25)' : 'rgba(56, 189, 248, 0.25)'}`
+                      background: '#1C1C1C',
+                      color: '#B3B3B3',
+                      border: '1px solid #292929'
                     }}>
                       {card.tag}
                     </span>
                   </div>
-                  <ArrowUpRight size={15} color="#64748B" />
+                  <ArrowUpRight size={15} color="#777777" />
                 </div>
 
                 <div style={{
                   fontSize: '14px',
                   fontWeight: 600,
-                  color: '#FFFFFF',
+                  color: '#F5F5F5',
                   marginBottom: '6px'
                 }}>
                   {card.title}
@@ -224,7 +221,7 @@ export default function ChatHomeEmptyState({ onSelectPrompt }) {
 
                 <p style={{
                   fontSize: '12px',
-                  color: '#94A3B8',
+                  color: '#B3B3B3',
                   lineHeight: 1.45,
                   margin: 0
                 }}>
@@ -235,16 +232,16 @@ export default function ChatHomeEmptyState({ onSelectPrompt }) {
               <div style={{
                 marginTop: '12px',
                 paddingTop: '10px',
-                borderTop: '1px solid rgba(255, 255, 255, 0.05)',
+                borderTop: '1px solid #292929',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'space-between',
                 fontSize: '11px'
               }}>
-                <span style={{ color: '#64748B', fontFamily: 'monospace' }}>
+                <span style={{ color: '#777777', fontFamily: 'monospace' }}>
                   {card.corridor}
                 </span>
-                <span style={{ color: card.tagColor === 'emerald' ? '#34D399' : '#C0C1FF', fontWeight: 600 }}>
+                <span style={{ color: '#FF1744', fontWeight: 600 }}>
                   {card.metric}
                 </span>
               </div>

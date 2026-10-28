@@ -55,46 +55,52 @@ export default function PredictionResultPanel({
             display: 'flex',
             alignItems: 'center',
             gap: '6px',
-            background: 'rgba(255, 255, 255, 0.05)',
-            border: '1px solid rgba(255, 255, 255, 0.1)',
+            background: '#1C1C1C',
+            border: '1px solid #292929',
             borderRadius: '8px',
             padding: '6px 12px',
-            color: '#CBD5E1',
+            color: '#B3B3B3',
             fontSize: '12px',
             fontWeight: 500,
             cursor: 'pointer',
             transition: 'all 0.2s'
           }}
-          onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)'}
-          onMouseLeave={(e) => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.05)'}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.color = '#F5F5F5';
+            e.currentTarget.style.background = '#292929';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.color = '#B3B3B3';
+            e.currentTarget.style.background = '#1C1C1C';
+          }}
         >
           <ArrowLeft size={14} />
           <span>Modify Property Parameters</span>
         </button>
 
-        <span style={{ fontSize: '11px', color: '#64748B' }}>
+        <span style={{ fontSize: '11px', color: '#777777' }}>
           Estimated by {isRent || isHouse ? 'Ranger Random Forest' : 'XGBoost'}
         </span>
       </div>
 
-      {/* Main Glassmorphic Valuation Card */}
+      {/* Main Valuation Card */}
       <div style={{
-        background: 'linear-gradient(145deg, rgba(20, 28, 46, 0.95) 0%, rgba(13, 19, 32, 0.95) 100%)',
-        border: '1px solid rgba(99, 102, 241, 0.35)',
+        background: '#171717',
+        border: '1px solid #292929',
         borderRadius: '24px',
         padding: '30px',
-        boxShadow: '0 20px 50px -10px rgba(0, 0, 0, 0.6), 0 0 30px rgba(99, 102, 241, 0.2)',
+        boxShadow: '0 20px 50px -10px rgba(0, 0, 0, 0.7)',
         position: 'relative',
         overflow: 'hidden'
       }}>
-        {/* Decorative Top Accent Glow */}
+        {/* Decorative Top Accent Glow (Crimson -> Ruby -> Burgundy) */}
         <div style={{
           position: 'absolute',
           top: 0,
           left: 0,
           right: 0,
           height: '3px',
-          background: 'linear-gradient(90deg, #38BDF8 0%, #6366F1 50%, #A855F7 100%)'
+          background: 'linear-gradient(90deg, #FF1744 0%, #B00035 50%, #6A003F 100%)'
         }} />
 
         {/* Card Header */}
@@ -107,9 +113,9 @@ export default function PredictionResultPanel({
               letterSpacing: '0.06em',
               padding: '4px 12px',
               borderRadius: '9999px',
-              background: isRent ? 'rgba(16, 185, 129, 0.15)' : 'rgba(99, 102, 241, 0.18)',
-              color: isRent ? '#34D399' : '#C0C1FF',
-              border: `1px solid ${isRent ? 'rgba(16, 185, 129, 0.3)' : 'rgba(99, 102, 241, 0.35)'}`,
+              background: isRent ? 'rgba(34, 197, 94, 0.12)' : 'rgba(255, 23, 68, 0.12)',
+              color: isRent ? '#22C55E' : '#FF1744',
+              border: `1px solid ${isRent ? 'rgba(34, 197, 94, 0.3)' : 'rgba(255, 23, 68, 0.3)'}`,
               display: 'inline-flex',
               alignItems: 'center',
               gap: '6px'
@@ -122,11 +128,11 @@ export default function PredictionResultPanel({
           <button
             onClick={handleCopy}
             style={{
-              background: 'rgba(255, 255, 255, 0.05)',
-              border: '1px solid rgba(255, 255, 255, 0.1)',
+              background: '#1C1C1C',
+              border: '1px solid #292929',
               borderRadius: '8px',
               padding: '6px 12px',
-              color: copied ? '#34D399' : '#CBD5E1',
+              color: copied ? '#22C55E' : '#B3B3B3',
               fontSize: '12px',
               cursor: 'pointer',
               display: 'flex',
@@ -142,7 +148,7 @@ export default function PredictionResultPanel({
 
         {/* Valuation Hero Figure */}
         <div style={{ marginBottom: '24px' }}>
-          <div style={{ fontSize: '13px', color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '6px' }}>
+          <div style={{ fontSize: '13px', color: '#B3B3B3', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '6px' }}>
             Model Estimated Fair Market Value
           </div>
           <div style={{ display: 'flex', alignItems: 'baseline', gap: '16px', flexWrap: 'wrap' }}>
@@ -150,7 +156,7 @@ export default function PredictionResultPanel({
               fontSize: '44px',
               fontWeight: 800,
               letterSpacing: '-0.03em',
-              color: '#FFFFFF',
+              color: '#F5F5F5',
               fontFamily: "'Plus Jakarta Sans', sans-serif"
             }}>
               {formattedPrice}
@@ -160,11 +166,11 @@ export default function PredictionResultPanel({
               <span style={{
                 fontSize: '16px',
                 fontWeight: 600,
-                color: '#38BDF8',
-                background: 'rgba(56, 189, 248, 0.12)',
+                color: '#F5F5F5',
+                background: '#1C1C1C',
                 padding: '6px 14px',
                 borderRadius: '10px',
-                border: '1px solid rgba(56, 189, 248, 0.25)',
+                border: '1px solid #292929',
                 fontFamily: "'Plus Jakarta Sans', sans-serif"
               }}>
                 {formattedRate}
@@ -180,46 +186,46 @@ export default function PredictionResultPanel({
           gap: '8px',
           padding: '14px 16px',
           borderRadius: '14px',
-          background: 'rgba(11, 17, 30, 0.75)',
-          border: '1px solid rgba(255, 255, 255, 0.06)',
+          background: '#1C1C1C',
+          border: '1px solid #292929',
           marginBottom: '24px'
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', color: '#FFFFFF' }}>
-            <MapPin size={15} color="#38BDF8" />
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', color: '#F5F5F5' }}>
+            <MapPin size={15} color="#FF1744" />
             <strong>{formData.locality}</strong>
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', color: '#FFFFFF', borderLeft: '1px solid rgba(255,255,255,0.1)', paddingLeft: '10px' }}>
-            <Building size={15} color="#A855F7" />
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', color: '#F5F5F5', borderLeft: '1px solid #292929', paddingLeft: '10px' }}>
+            <Building size={15} color="#B00035" />
             <span>{formData.bhk} BHK</span>
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', color: '#FFFFFF', borderLeft: '1px solid rgba(255,255,255,0.1)', paddingLeft: '10px' }}>
-            <Maximize2 size={15} color="#34D399" />
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', color: '#F5F5F5', borderLeft: '1px solid #292929', paddingLeft: '10px' }}>
+            <Maximize2 size={15} color="#22C55E" />
             <span>{area} sq.ft</span>
           </div>
 
           {formData.furnishing && (
-            <div style={{ fontSize: '13px', color: '#CBD5E1', borderLeft: '1px solid rgba(255,255,255,0.1)', paddingLeft: '10px' }}>
+            <div style={{ fontSize: '13px', color: '#B3B3B3', borderLeft: '1px solid #292929', paddingLeft: '10px' }}>
               {formData.furnishing}
             </div>
           )}
 
           {!isRent && formData.transaction && (
-            <div style={{ fontSize: '13px', color: '#CBD5E1', borderLeft: '1px solid rgba(255,255,255,0.1)', paddingLeft: '10px' }}>
+            <div style={{ fontSize: '13px', color: '#B3B3B3', borderLeft: '1px solid #292929', paddingLeft: '10px' }}>
               {formData.transaction}
             </div>
           )}
 
           {(isHouse || isRent) && formData.property_floor != null && (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '13px', color: '#CBD5E1', borderLeft: '1px solid rgba(255,255,255,0.1)', paddingLeft: '10px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '13px', color: '#B3B3B3', borderLeft: '1px solid #292929', paddingLeft: '10px' }}>
               <Layers size={14} />
               <span>Floor {formData.property_floor}{formData.total_floors ? `/${formData.total_floors}` : ''}</span>
             </div>
           )}
 
           {isHouse && formData.facing && (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '13px', color: '#CBD5E1', borderLeft: '1px solid rgba(255,255,255,0.1)', paddingLeft: '10px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '13px', color: '#B3B3B3', borderLeft: '1px solid #292929', paddingLeft: '10px' }}>
               <Compass size={14} />
               <span>{formData.facing} Facing</span>
             </div>
@@ -236,21 +242,21 @@ export default function PredictionResultPanel({
           <div style={{
             padding: '12px 14px',
             borderRadius: '12px',
-            background: 'rgba(255, 255, 255, 0.02)',
-            border: '1px solid rgba(255, 255, 255, 0.06)'
+            background: '#1C1C1C',
+            border: '1px solid #292929'
           }}>
-            <div style={{ fontSize: '11px', color: '#64748B', textTransform: 'uppercase' }}>Property locality</div>
-            <div style={{ fontSize: '14px', fontWeight: 600, color: '#E2E8F0', marginTop: '4px' }}>{formData.locality}</div>
+            <div style={{ fontSize: '11px', color: '#777777', textTransform: 'uppercase' }}>Property locality</div>
+            <div style={{ fontSize: '14px', fontWeight: 600, color: '#F5F5F5', marginTop: '4px' }}>{formData.locality}</div>
           </div>
 
           <div style={{
             padding: '12px 14px',
             borderRadius: '12px',
-            background: 'rgba(255, 255, 255, 0.02)',
-            border: '1px solid rgba(255, 255, 255, 0.06)'
+            background: '#1C1C1C',
+            border: '1px solid #292929'
           }}>
-            <div style={{ fontSize: '11px', color: '#64748B', textTransform: 'uppercase' }}>Zero Hallucination</div>
-            <div style={{ fontSize: '14px', fontWeight: 600, color: '#34D399', marginTop: '4px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <div style={{ fontSize: '11px', color: '#777777', textTransform: 'uppercase' }}>Zero Hallucination</div>
+            <div style={{ fontSize: '14px', fontWeight: 600, color: '#22C55E', marginTop: '4px', display: 'flex', alignItems: 'center', gap: '6px' }}>
               <ShieldCheck size={15} />
               <span>Strict ML Computation</span>
             </div>
@@ -259,11 +265,11 @@ export default function PredictionResultPanel({
           <div style={{
             padding: '12px 14px',
             borderRadius: '12px',
-            background: 'rgba(255, 255, 255, 0.02)',
-            border: '1px solid rgba(255, 255, 255, 0.06)'
+            background: '#1C1C1C',
+            border: '1px solid #292929'
           }}>
-            <div style={{ fontSize: '11px', color: '#64748B', textTransform: 'uppercase' }}>Market Context</div>
-            <div style={{ fontSize: '14px', fontWeight: 600, color: '#38BDF8', marginTop: '4px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <div style={{ fontSize: '11px', color: '#777777', textTransform: 'uppercase' }}>Market Context</div>
+            <div style={{ fontSize: '14px', fontWeight: 600, color: '#3B82F6', marginTop: '4px', display: 'flex', alignItems: 'center', gap: '6px' }}>
               <TrendingUp size={15} />
               <span>Ask AI for listing comparisons</span>
             </div>
@@ -271,7 +277,7 @@ export default function PredictionResultPanel({
         </div>
 
         {/* Primary Action Buttons */}
-        <p style={{ color: '#94A3B8', fontSize: '12px', marginBottom: '16px' }}>This model estimate is not a certified appraisal or guaranteed transaction price. Actual prices vary with condition, amenities and negotiations.</p>
+        <p style={{ color: '#777777', fontSize: '12px', marginBottom: '16px' }}>This model estimate is not a certified appraisal or guaranteed transaction price. Actual prices vary with condition, amenities and negotiations.</p>
         <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
           <button
             onClick={handleAskAi}
@@ -297,7 +303,10 @@ export default function PredictionResultPanel({
               padding: '12px 20px',
               fontSize: '13px',
               borderRadius: '12px',
-              cursor: 'pointer'
+              cursor: 'pointer',
+              background: '#1C1C1C',
+              border: '1px solid #292929',
+              color: '#F5F5F5'
             }}
           >
             <RefreshCw size={15} />

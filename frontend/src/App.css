@@ -5,8 +5,8 @@
   height: 100vh;
   width: 100vw;
   overflow: hidden;
-  background-color: var(--bg-canvas, #070A11);
-  color: var(--text-primary, #F8FAFC);
+  background-color: var(--bg-main, #080808);
+  color: var(--text-primary, #F5F5F5);
 }
 
 .main-workspace {
@@ -15,7 +15,7 @@
   height: 100vh;
   overflow-y: auto;
   position: relative;
-  background-color: #070A11;
+  background-color: #080808;
   transition: all 0.3s ease;
 }
 

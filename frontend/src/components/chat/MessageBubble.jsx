@@ -1,6 +1,7 @@
 import React from 'react';
 import { Bot, User, Sparkles, Building2, Copy, Check } from 'lucide-react';
 import PredictionCard from './PredictionCard';
+import PropertyMap from '../map/PropertyMap';
 
 /**
  * Lightweight helper to format markdown-style text:
@@ -22,7 +23,7 @@ function FormattedContent({ content }) {
       elements.push(
         <ul key={`ul_${elements.length}`} style={{ paddingLeft: '20px', margin: '8px 0', display: 'flex', flexDirection: 'column', gap: '4px' }}>
           {listItems.map((item, idx) => (
-            <li key={idx} style={{ color: '#E2E8F0', lineHeight: 1.5 }}>
+            <li key={idx} style={{ color: '#F5F5F5', lineHeight: 1.5 }}>
               {renderFormattedInline(item)}
             </li>
           ))}
@@ -41,10 +42,10 @@ function FormattedContent({ content }) {
             width: '100%',
             borderCollapse: 'collapse',
             fontSize: '12px',
-            background: 'rgba(11, 17, 30, 0.7)',
+            background: '#1C1C1C',
             borderRadius: '8px',
             overflow: 'hidden',
-            border: '1px solid rgba(255, 255, 255, 0.08)'
+            border: '1px solid #292929'
           }}>
             <tbody>
               {tableRows.map((row, rIdx) => {
@@ -52,14 +53,14 @@ function FormattedContent({ content }) {
                 const isHeader = rIdx === 0;
                 return (
                   <tr key={rIdx} style={{
-                    background: isHeader ? 'rgba(99, 102, 241, 0.15)' : (rIdx % 2 === 0 ? 'rgba(255, 255, 255, 0.02)' : 'transparent'),
-                    borderBottom: '1px solid rgba(255, 255, 255, 0.06)'
+                    background: isHeader ? 'rgba(255, 23, 68, 0.1)' : (rIdx % 2 === 0 ? 'rgba(255, 255, 255, 0.02)' : 'transparent'),
+                    borderBottom: '1px solid #292929'
                   }}>
                     {cells.map((cell, cIdx) => (
                       <td key={cIdx} style={{
                         padding: '7px 10px',
                         fontWeight: isHeader ? 700 : 400,
-                        color: isHeader ? '#FFFFFF' : '#CBD5E1'
+                        color: isHeader ? '#F5F5F5' : '#B3B3B3'
                       }}>
                         {renderFormattedInline(cell.trim())}
                       </td>
@@ -93,39 +94,21 @@ function FormattedContent({ content }) {
     // Bullet List Detection
     if (trimmed.startsWith('* ') || trimmed.startsWith('- ') || trimmed.startsWith('• ')) {
       inList = true;
-      listItems.push(trimmed.replace(/^(\*|-|•)\s+/, ''));
+      listItems.push(trimmed.replace(/^(\* |- |• )/, ''));
       return;
     } else if (inList) {
       flushList();
     }
 
-    // Headings
-    if (trimmed.startsWith('### ')) {
-      elements.push(
-        <h4 key={`h4_${index}`} style={{ fontSize: '15px', fontWeight: 700, color: '#FFFFFF', margin: '12px 0 6px' }}>
-          {renderFormattedInline(trimmed.replace('### ', ''))}
-        </h4>
-      );
-      return;
-    }
-    if (trimmed.startsWith('## ')) {
-      elements.push(
-        <h3 key={`h3_${index}`} style={{ fontSize: '16px', fontWeight: 700, color: '#FFFFFF', margin: '14px 0 6px' }}>
-          {renderFormattedInline(trimmed.replace('## ', ''))}
-        </h3>
-      );
-      return;
-    }
-
-    // Empty lines
+    // Blank line
     if (!trimmed) {
-      elements.push(<div key={`sp_${index}`} style={{ height: '8px' }} />);
+      elements.push(<div key={`br_${index}`} style={{ height: '8px' }} />);
       return;
     }
 
-    // Normal paragraph
+    // Regular paragraph
     elements.push(
-      <p key={`p_${index}`} style={{ margin: '4px 0', lineHeight: 1.6 }}>
+      <p key={`p_${index}`} style={{ margin: '4px 0', color: '#F5F5F5' }}>
         {renderFormattedInline(trimmed)}
       </p>
     );
@@ -183,34 +166,29 @@ export default function MessageBubble({
           height: '34px',
           borderRadius: '10px',
           background: isUser
-            ? 'linear-gradient(135deg, #1E3A8A 0%, #2563EB 100%)'
-            : 'linear-gradient(135deg, #3B82F6 0%, #6366F1 50%, #A855F7 100%)',
-          border: '1px solid rgba(255, 255, 255, 0.15)',
+            ? '#171717'
+            : 'linear-gradient(135deg, #FF1744 0%, #B00035 100%)',
+          border: isUser ? '1px solid #292929' : '1px solid rgba(255, 23, 68, 0.4)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
           flexShrink: 0,
-          boxShadow: isUser ? 'none' : '0 0 15px rgba(99, 102, 241, 0.35)'
+          boxShadow: isUser ? 'none' : '0 0 15px rgba(255, 23, 68, 0.35)'
         }}>
-          {isUser ? <User size={16} color="#FFFFFF" /> : <Building2 size={16} color="#FFFFFF" />}
+          {isUser ? <User size={16} color="#B3B3B3" /> : <Building2 size={16} color="#FFFFFF" />}
         </div>
 
         {/* Message Bubble Body */}
         <div style={{ maxWidth: '100%' }}>
           <div style={{
-            background: isUser
-              ? 'linear-gradient(135deg, #1E293B 0%, #0F172A 100%)'
-              : 'rgba(20, 28, 46, 0.85)',
-            border: isUser
-              ? '1px solid rgba(99, 102, 241, 0.4)'
-              : '1px solid rgba(255, 255, 255, 0.08)',
-            backdropFilter: 'blur(16px)',
-            color: '#F8FAFC',
+            background: isUser ? '#1C1C1C' : '#171717',
+            border: '1px solid #292929',
+            color: '#F5F5F5',
             padding: '14px 18px',
             borderRadius: isUser ? '18px 18px 4px 18px' : '18px 18px 18px 4px',
             fontSize: '14px',
             lineHeight: 1.6,
-            boxShadow: '0 6px 20px rgba(0, 0, 0, 0.35)',
+            boxShadow: '0 6px 20px rgba(0, 0, 0, 0.4)',
             position: 'relative'
           }}>
             <FormattedContent content={message.content} />
@@ -225,9 +203,9 @@ export default function MessageBubble({
                 right: '8px',
                 background: 'transparent',
                 border: 'none',
-                color: copied ? '#34D399' : '#64748B',
+                color: copied ? '#22C55E' : '#777777',
                 cursor: 'pointer',
-                opacity: 0.6,
+                opacity: 0.7,
                 padding: '2px'
               }}
             >
@@ -245,6 +223,13 @@ export default function MessageBubble({
             />
           )}
 
+          {/* Interactive Property & Nearby Amenities Map */}
+          {message.map && message.map.center && (
+            <div style={{ marginTop: '14px', width: '100%' }}>
+              <PropertyMap mapData={message.map} />
+            </div>
+          )}
+
           {/* Follow-up / Suggestion chips */}
           {message.suggestions && message.suggestions.length > 0 && (
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginTop: '10px' }}>
@@ -253,9 +238,9 @@ export default function MessageBubble({
                   key={idx}
                   onClick={() => onSelectSuggestion && onSelectSuggestion(suggestion)}
                   style={{
-                    background: 'rgba(99, 102, 241, 0.1)',
-                    color: '#C0C1FF',
-                    border: '1px solid rgba(99, 102, 241, 0.25)',
+                    background: 'rgba(255, 23, 68, 0.08)',
+                    color: '#F5F5F5',
+                    border: '1px solid #292929',
                     borderRadius: '9999px',
                     padding: '6px 12px',
                     fontSize: '12px',
@@ -267,17 +252,17 @@ export default function MessageBubble({
                     transition: 'all 0.2s'
                   }}
                   onMouseEnter={(e) => {
-                    e.currentTarget.style.background = 'rgba(99, 102, 241, 0.22)';
-                    e.currentTarget.style.borderColor = 'rgba(99, 102, 241, 0.5)';
+                    e.currentTarget.style.background = 'rgba(255, 23, 68, 0.16)';
+                    e.currentTarget.style.borderColor = 'rgba(255, 23, 68, 0.4)';
                     e.currentTarget.style.transform = 'translateY(-1px)';
                   }}
                   onMouseLeave={(e) => {
-                    e.currentTarget.style.background = 'rgba(99, 102, 241, 0.1)';
-                    e.currentTarget.style.borderColor = 'rgba(99, 102, 241, 0.25)';
+                    e.currentTarget.style.background = 'rgba(255, 23, 68, 0.08)';
+                    e.currentTarget.style.borderColor = '#292929';
                     e.currentTarget.style.transform = 'translateY(0)';
                   }}
                 >
-                  <Sparkles size={12} />
+                  <Sparkles size={12} color="#FF1744" />
                   {suggestion}
                 </button>
               ))}
@@ -286,7 +271,7 @@ export default function MessageBubble({
 
           <div style={{
             fontSize: '11px',
-            color: '#64748B',
+            color: '#777777',
             marginTop: '5px',
             textAlign: isUser ? 'right' : 'left'
           }}>

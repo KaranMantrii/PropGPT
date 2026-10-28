@@ -12,9 +12,11 @@ export function getApiBaseUrl(override) {
 // Accept older Plumber servers as well as the scalar JSON contract.
 export function normalizeApiResponse(data) {
   const scalarKeys = new Set(['status', 'service', 'reply', 'message', 'prediction', 'predicted_price',
-    'prediction_type', 'intent', 'error', 'details', 'success', 'prediction_success', 'session_id',
+    'prediction_type', 'intent', 'error', 'details', 'success', 'prediction_success', 'ready_for_prediction', 'session_id',
     'area', 'bhk', 'locality', 'furnishing', 'transaction', 'area_source', 'bathroom', 'balcony',
-    'ownership', 'facing', 'buy_floor', 'total_floors', 'currency', 'period']);
+    'ownership', 'facing', 'buy_floor', 'total_floors', 'currency', 'period',
+    'lat', 'lng', 'radius', 'name', 'category', 'type', 'distance_m', 'id',
+    'total', 'healthcare', 'education', 'transportation', 'shopping', 'recreation', 'display_name']);
   function visit(value, key) {
     if (Array.isArray(value)) {
       if (scalarKeys.has(key) && value.length === 1) return visit(value[0], key);

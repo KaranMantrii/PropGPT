@@ -123,36 +123,35 @@ export default function App() {
         ) : (
           <div style={{
             minHeight: '100vh',
-            background: '#070A11',
+            background: '#080808',
             display: 'flex',
             flexDirection: 'column'
           }}>
             {/* Minimal Mobile Header when on Predictor View */}
             <div style={{
               padding: '12px 20px',
-              borderBottom: '1px solid rgba(255, 255, 255, 0.06)',
+              borderBottom: '1px solid #292929',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'space-between',
-              background: 'rgba(13, 19, 32, 0.75)',
-              backdropFilter: 'blur(16px)'
+              background: '#0D0D0D'
             }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                 <button
                   onClick={() => setIsMobileSidebarOpen(true)}
                   className="mobile-hamburger-btn"
                   style={{
-                    background: 'rgba(255, 255, 255, 0.05)',
-                    border: '1px solid rgba(255, 255, 255, 0.1)',
+                    background: '#1C1C1C',
+                    border: '1px solid #292929',
                     borderRadius: '8px',
                     padding: '6px',
-                    color: '#FFFFFF',
+                    color: '#F5F5F5',
                     cursor: 'pointer'
                   }}
                 >
                   <span style={{ fontSize: '18px' }}>☰</span>
                 </button>
-                <span style={{ fontSize: '14px', fontWeight: 700, color: '#FFFFFF' }}>
+                <span style={{ fontSize: '14px', fontWeight: 700, color: '#F5F5F5' }}>
                   Manual Model Predictor (3-Tab)
                 </span>
               </div>
@@ -165,7 +164,7 @@ export default function App() {
                   borderRadius: '8px',
                   fontSize: '12px',
                   fontWeight: 600,
-                  color: '#38BDF8'
+                  color: '#FF1744'
                 }}
               >
                 Switch to Chat →

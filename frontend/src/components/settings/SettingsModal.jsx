@@ -57,7 +57,7 @@ export default function SettingsModal({
     <div style={{
       position: 'fixed',
       inset: 0,
-      background: 'rgba(7, 10, 17, 0.8)',
+      background: 'rgba(8, 8, 8, 0.85)',
       backdropFilter: 'blur(12px)',
       display: 'flex',
       alignItems: 'center',
@@ -68,28 +68,28 @@ export default function SettingsModal({
       <div style={{
         width: '100%',
         maxWidth: '560px',
-        background: '#0D1320',
-        border: '1px solid rgba(99, 102, 241, 0.35)',
+        background: '#171717',
+        border: '1px solid #292929',
         borderRadius: '24px',
-        boxShadow: '0 25px 60px rgba(0, 0, 0, 0.8), 0 0 35px rgba(99, 102, 241, 0.2)',
+        boxShadow: '0 25px 60px rgba(0, 0, 0, 0.85)',
         overflow: 'hidden',
         animation: 'fadeIn 0.25s ease-out forwards'
       }}>
         {/* Modal Header */}
         <div style={{
           padding: '20px 24px',
-          borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
+          borderBottom: '1px solid #292929',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          background: 'rgba(20, 28, 46, 0.6)'
+          background: '#111111'
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
             <div style={{
               width: '32px',
               height: '32px',
               borderRadius: '8px',
-              background: 'linear-gradient(135deg, #3B82F6 0%, #6366F1 100%)',
+              background: 'linear-gradient(135deg, #FF1744 0%, #B00035 100%)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center'
@@ -97,10 +97,10 @@ export default function SettingsModal({
               <Settings size={18} color="#FFFFFF" />
             </div>
             <div>
-              <h2 style={{ fontSize: '16px', fontWeight: 700, color: '#FFFFFF', margin: 0 }}>
+              <h2 style={{ fontSize: '16px', fontWeight: 700, color: '#F5F5F5', margin: 0 }}>
                 Valuation Engine Settings
               </h2>
-              <span style={{ fontSize: '11px', color: '#94A3B8' }}>
+              <span style={{ fontSize: '11px', color: '#777777' }}>
                 System configuration & preferences
               </span>
             </div>
@@ -109,10 +109,10 @@ export default function SettingsModal({
           <button
             onClick={onClose}
             style={{
-              background: 'rgba(255, 255, 255, 0.05)',
-              border: '1px solid rgba(255, 255, 255, 0.1)',
+              background: '#1C1C1C',
+              border: '1px solid #292929',
               borderRadius: '8px',
-              color: '#94A3B8',
+              color: '#B3B3B3',
               padding: '6px',
               cursor: 'pointer'
             }}
@@ -126,8 +126,8 @@ export default function SettingsModal({
           {/* Section 1: Backend Connection */}
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
-              <Server size={15} color="#38BDF8" />
-              <label style={{ fontSize: '13px', fontWeight: 600, color: '#FFFFFF' }}>
+              <Server size={15} color="#FF1744" />
+              <label style={{ fontSize: '13px', fontWeight: 600, color: '#F5F5F5' }}>
                 R Plumber API Endpoint
               </label>
             </div>
@@ -138,11 +138,11 @@ export default function SettingsModal({
                 onChange={(e) => setPrefs({ ...prefs, backendUrl: e.target.value })}
                 style={{
                   flex: 1,
-                  background: 'rgba(11, 17, 30, 0.9)',
-                  border: '1px solid rgba(255, 255, 255, 0.1)',
+                  background: '#1C1C1C',
+                  border: '1px solid #292929',
                   borderRadius: '8px',
                   padding: '9px 12px',
-                  color: '#FFFFFF',
+                  color: '#F5F5F5',
                   fontSize: '13px',
                   fontFamily: 'monospace'
                 }}
@@ -154,9 +154,9 @@ export default function SettingsModal({
                 style={{
                   padding: '9px 14px',
                   borderRadius: '8px',
-                  background: 'rgba(255, 255, 255, 0.08)',
-                  border: '1px solid rgba(255, 255, 255, 0.15)',
-                  color: '#FFFFFF',
+                  background: '#1C1C1C',
+                  border: '1px solid #292929',
+                  color: '#F5F5F5',
                   fontSize: '12px',
                   fontWeight: 600,
                   cursor: 'pointer'
@@ -169,7 +169,7 @@ export default function SettingsModal({
               <div style={{
                 marginTop: '6px',
                 fontSize: '11px',
-                color: backendStatus.ok ? '#34D399' : '#FCA5A5',
+                color: backendStatus.ok ? '#22C55E' : '#EF4444',
                 display: 'flex',
                 alignItems: 'center',
                 gap: '5px'
@@ -183,8 +183,8 @@ export default function SettingsModal({
           {/* Section 2: Speech Recognition */}
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
-              <Mic size={15} color="#A855F7" />
-              <label style={{ fontSize: '13px', fontWeight: 600, color: '#FFFFFF' }}>
+              <Mic size={15} color="#B00035" />
+              <label style={{ fontSize: '13px', fontWeight: 600, color: '#F5F5F5' }}>
                 Voice Speech Recognition (Web Speech API)
               </label>
             </div>
@@ -194,11 +194,11 @@ export default function SettingsModal({
                 onChange={(e) => setPrefs({ ...prefs, speechLang: e.target.value })}
                 style={{
                   flex: 1,
-                  background: 'rgba(11, 17, 30, 0.9)',
-                  border: '1px solid rgba(255, 255, 255, 0.1)',
+                  background: '#1C1C1C',
+                  border: '1px solid #292929',
                   borderRadius: '8px',
                   padding: '9px 12px',
-                  color: '#FFFFFF',
+                  color: '#F5F5F5',
                   fontSize: '13px'
                 }}
               >
@@ -211,8 +211,8 @@ export default function SettingsModal({
           {/* Section 3: Currency & Units */}
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
-              <IndianRupee size={15} color="#10B981" />
-              <label style={{ fontSize: '13px', fontWeight: 600, color: '#FFFFFF' }}>
+              <IndianRupee size={15} color="#22C55E" />
+              <label style={{ fontSize: '13px', fontWeight: 600, color: '#F5F5F5' }}>
                 Currency Display Format
               </label>
             </div>
@@ -224,9 +224,9 @@ export default function SettingsModal({
                   flex: 1,
                   padding: '9px 12px',
                   borderRadius: '8px',
-                  border: prefs.currencyDisplay === 'inr_crores_lakhs' ? '1px solid #10B981' : '1px solid rgba(255, 255, 255, 0.08)',
-                  background: prefs.currencyDisplay === 'inr_crores_lakhs' ? 'rgba(16, 185, 129, 0.15)' : 'rgba(11, 17, 30, 0.8)',
-                  color: prefs.currencyDisplay === 'inr_crores_lakhs' ? '#34D399' : '#94A3B8',
+                  border: prefs.currencyDisplay === 'inr_crores_lakhs' ? '1px solid #FF1744' : '1px solid #292929',
+                  background: prefs.currencyDisplay === 'inr_crores_lakhs' ? 'rgba(255, 23, 68, 0.15)' : '#1C1C1C',
+                  color: prefs.currencyDisplay === 'inr_crores_lakhs' ? '#FF1744' : '#B3B3B3',
                   fontSize: '12px',
                   fontWeight: 600,
                   cursor: 'pointer'
@@ -241,9 +241,9 @@ export default function SettingsModal({
                   flex: 1,
                   padding: '9px 12px',
                   borderRadius: '8px',
-                  border: prefs.currencyDisplay === 'standard' ? '1px solid #10B981' : '1px solid rgba(255, 255, 255, 0.08)',
-                  background: prefs.currencyDisplay === 'standard' ? 'rgba(16, 185, 129, 0.15)' : 'rgba(11, 17, 30, 0.8)',
-                  color: prefs.currencyDisplay === 'standard' ? '#34D399' : '#94A3B8',
+                  border: prefs.currencyDisplay === 'standard' ? '1px solid #FF1744' : '1px solid #292929',
+                  background: prefs.currencyDisplay === 'standard' ? 'rgba(255, 23, 68, 0.15)' : '#1C1C1C',
+                  color: prefs.currencyDisplay === 'standard' ? '#FF1744' : '#B3B3B3',
                   fontSize: '12px',
                   fontWeight: 600,
                   cursor: 'pointer'
@@ -258,15 +258,15 @@ export default function SettingsModal({
           <div style={{
             padding: '14px',
             borderRadius: '12px',
-            background: 'rgba(239, 68, 68, 0.05)',
-            border: '1px solid rgba(239, 68, 68, 0.2)'
+            background: 'rgba(239, 68, 68, 0.08)',
+            border: '1px solid rgba(239, 68, 68, 0.25)'
           }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
               <div>
-                <div style={{ fontSize: '13px', fontWeight: 600, color: '#FCA5A5' }}>
+                <div style={{ fontSize: '13px', fontWeight: 600, color: '#EF4444' }}>
                   Conversation Cache
                 </div>
-                <div style={{ fontSize: '11px', color: '#94A3B8', marginTop: '2px' }}>
+                <div style={{ fontSize: '11px', color: '#B3B3B3', marginTop: '2px' }}>
                   {totalSessions} saved valuation session{totalSessions === 1 ? '' : 's'} stored in browser
                 </div>
               </div>
@@ -281,8 +281,8 @@ export default function SettingsModal({
                   padding: '8px 12px',
                   borderRadius: '8px',
                   background: 'rgba(239, 68, 68, 0.15)',
-                  border: '1px solid rgba(239, 68, 68, 0.35)',
-                  color: '#F87171',
+                  border: '1px solid #EF4444',
+                  color: '#EF4444',
                   fontSize: '12px',
                   fontWeight: 600,
                   cursor: 'pointer'
@@ -298,12 +298,12 @@ export default function SettingsModal({
         {/* Modal Footer */}
         <div style={{
           padding: '16px 24px',
-          borderTop: '1px solid rgba(255, 255, 255, 0.08)',
+          borderTop: '1px solid #292929',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'flex-end',
           gap: '12px',
-          background: 'rgba(20, 28, 46, 0.6)'
+          background: '#111111'
         }}>
           <button
             type="button"
@@ -311,9 +311,9 @@ export default function SettingsModal({
             style={{
               padding: '9px 16px',
               borderRadius: '8px',
-              background: 'transparent',
-              border: '1px solid rgba(255, 255, 255, 0.1)',
-              color: '#94A3B8',
+              background: '#1C1C1C',
+              border: '1px solid #292929',
+              color: '#B3B3B3',
               fontSize: '13px',
               cursor: 'pointer'
             }}

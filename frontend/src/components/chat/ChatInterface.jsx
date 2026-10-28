@@ -29,8 +29,6 @@ export default function ChatInterface({
     return () => { mountedRef.current = false; };
   }, []);
 
-
-
   // Scroll to bottom when messages change
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -72,6 +70,7 @@ export default function ChatInterface({
         prediction: predictionData,
         property_details: response.property || response.property_details || (response.conversation_state?.required_fields) || null,
         suggestions: response.suggested_replies || response.suggestions || null,
+        map: response.map || null,
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
       };
 
@@ -150,10 +149,10 @@ export default function ChatInterface({
       height: '100vh',
       width: '100%',
       position: 'relative',
-      background: '#070A11',
+      background: '#111111',
       overflow: 'hidden'
     }}>
-      {/* Ambient Radial Gradients */}
+      {/* Ambient Radial Gradients (Burgundy & Ruby atmospheric accents) */}
       <div style={{
         position: 'absolute',
         top: '10%',
@@ -161,7 +160,7 @@ export default function ChatInterface({
         width: '500px',
         height: '500px',
         borderRadius: '50%',
-        background: 'radial-gradient(circle, rgba(59, 130, 246, 0.08) 0%, transparent 70%)',
+        background: 'radial-gradient(circle, rgba(106, 0, 63, 0.08) 0%, transparent 70%)',
         filter: 'blur(80px)',
         pointerEvents: 'none'
       }} />
@@ -172,7 +171,7 @@ export default function ChatInterface({
         width: '450px',
         height: '450px',
         borderRadius: '50%',
-        background: 'radial-gradient(circle, rgba(168, 85, 247, 0.07) 0%, transparent 70%)',
+        background: 'radial-gradient(circle, rgba(176, 0, 53, 0.06) 0%, transparent 70%)',
         filter: 'blur(90px)',
         pointerEvents: 'none'
       }} />
@@ -180,12 +179,11 @@ export default function ChatInterface({
       {/* Top Header Bar */}
       <header className="chat-header" style={{
         padding: '12px 20px',
-        borderBottom: '1px solid rgba(255, 255, 255, 0.06)',
+        borderBottom: '1px solid #292929',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
-        background: 'rgba(13, 19, 32, 0.75)',
-        backdropFilter: 'blur(16px)',
+        background: '#0D0D0D',
         zIndex: 20
       }}>
         {/* Left: Mobile hamburger + Active Chat Title */}
@@ -197,11 +195,11 @@ export default function ChatInterface({
               aria-label="Open navigation"
               style={{
                 display: 'none',
-                background: 'rgba(255, 255, 255, 0.05)',
-                border: '1px solid rgba(255, 255, 255, 0.1)',
+                background: '#1C1C1C',
+                border: '1px solid #292929',
                 borderRadius: '8px',
                 padding: '6px',
-                color: '#FFFFFF',
+                color: '#F5F5F5',
                 cursor: 'pointer'
               }}
             >
@@ -213,7 +211,7 @@ export default function ChatInterface({
             <span style={{
               fontSize: '13px',
               fontWeight: 600,
-              color: '#FFFFFF',
+              color: '#F5F5F5',
               maxWidth: '300px',
               overflow: 'hidden',
               textOverflow: 'ellipsis',
@@ -225,9 +223,9 @@ export default function ChatInterface({
               fontSize: '10px',
               padding: '2px 6px',
               borderRadius: '9999px',
-              background: 'rgba(99, 102, 241, 0.15)',
-              color: '#C0C1FF',
-              border: '1px solid rgba(99, 102, 241, 0.25)',
+              background: 'rgba(255, 23, 68, 0.1)',
+              color: '#FF1744',
+              border: '1px solid rgba(255, 23, 68, 0.25)',
               fontWeight: 600
             }}>
               {session?.propertyType || "Conversational"}
@@ -243,9 +241,9 @@ export default function ChatInterface({
             style={{
               padding: '6px 12px',
               borderRadius: '8px',
-              background: 'rgba(99, 102, 241, 0.12)',
-              border: '1px solid rgba(99, 102, 241, 0.25)',
-              color: '#C0C1FF',
+              background: 'rgba(255, 23, 68, 0.1)',
+              border: '1px solid rgba(255, 23, 68, 0.25)',
+              color: '#FF1744',
               fontSize: '12px',
               fontWeight: 600,
               cursor: 'pointer',
@@ -264,14 +262,22 @@ export default function ChatInterface({
             style={{
               padding: '6px',
               borderRadius: '8px',
-              background: 'rgba(255, 255, 255, 0.04)',
-              border: '1px solid rgba(255, 255, 255, 0.08)',
-              color: '#94A3B8',
+              background: '#171717',
+              border: '1px solid #292929',
+              color: '#777777',
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               transition: 'all 0.2s'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.color = '#F5F5F5';
+              e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.2)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.color = '#777777';
+              e.currentTarget.style.borderColor = '#292929';
             }}
           >
             <Trash2 size={15} />
@@ -320,30 +326,29 @@ export default function ChatInterface({
                   width: '34px',
                   height: '34px',
                   borderRadius: '10px',
-                  background: 'linear-gradient(135deg, #3B82F6 0%, #6366F1 50%, #A855F7 100%)',
+                  background: 'linear-gradient(135deg, #FF1744 0%, #B00035 100%)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  boxShadow: '0 0 15px rgba(99, 102, 241, 0.35)'
+                  boxShadow: '0 0 15px rgba(255, 23, 68, 0.35)'
                 }}>
                   <Bot size={16} color="#FFFFFF" />
                 </div>
                 <div style={{
-                  background: 'rgba(20, 28, 46, 0.85)',
-                  border: '1px solid rgba(99, 102, 241, 0.3)',
-                  backdropFilter: 'blur(16px)',
+                  background: '#171717',
+                  border: '1px solid #292929',
                   padding: '14px 18px',
                   borderRadius: '18px 18px 18px 4px',
                   display: 'flex',
                   alignItems: 'center',
                   gap: '10px',
-                  color: '#C0C1FF',
+                  color: '#F5F5F5',
                   fontSize: '13px'
                 }}>
                   <div style={{ display: 'flex', gap: '4px' }}>
-                    <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#6366F1', animation: 'pulseGlow 1s infinite 0s' }} />
-                    <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#38BDF8', animation: 'pulseGlow 1s infinite 0.2s' }} />
-                    <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#A855F7', animation: 'pulseGlow 1s infinite 0.4s' }} />
+                    <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#FF1744', animation: 'pulseGlow 1s infinite 0s' }} />
+                    <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#B00035', animation: 'pulseGlow 1s infinite 0.2s' }} />
+                    <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#6A003F', animation: 'pulseGlow 1s infinite 0.4s' }} />
                   </div>
                   <span>Reviewing your property details...</span>
                 </div>
@@ -362,7 +367,7 @@ export default function ChatInterface({
         left: 0,
         right: 0,
         padding: '0 20px 16px',
-        background: 'linear-gradient(to top, rgba(7, 10, 17, 0.98) 70%, transparent 100%)',
+        background: 'linear-gradient(to top, rgba(17, 17, 17, 0.98) 70%, transparent 100%)',
         zIndex: 30
       }}>
         <ChatInput

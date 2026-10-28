@@ -101,31 +101,31 @@ export default function ManualPredictionForm({ onAskAiInstead }) {
     } else {
       setFormData({
         locality: 'Kokapet',
-        area: 1500,
+        area: 1650,
         bhk: 3,
-        bathrooms: 2,
-        balconies: 1,
+        bathrooms: 3,
+        balconies: 2,
         furnishing: 'Semi-Furnished',
         area_source: 'Super',
         transaction: 'Resale',
         ownership: 'Freehold',
         facing: 'East',
-        property_floor: 4,
-        total_floors: 12
+        property_floor: 5,
+        total_floors: 14
       });
     }
   };
 
   const handleAskAi = () => {
     if (onAskAiInstead) {
-      const typeStr = activeTab === 'rent' ? 'rental flat' : activeTab === 'house' ? 'independent house' : 'flat';
-      const prompt = `I want to evaluate a ${formData.bhk} BHK ${typeStr} in ${formData.locality} around ${formData.area} sq ft (${formData.furnishing || 'semi-furnished'}, ${formData.transaction || 'resale'}). What is the estimated price and micro-market analysis?`;
+      const typeLabel = activeTab === 'house' ? 'Independent House' : activeTab === 'rent' ? 'Rental Apartment' : 'Flat Purchase';
+      const prompt = `Estimate the price of a ${formData.bhk} BHK ${typeLabel} in ${formData.locality}, ${formData.area} sq.ft, ${formData.furnishing}.`;
       onAskAiInstead(prompt);
     }
   };
 
   const handleSubmit = async (e) => {
-    if (e) e.preventDefault();
+    e.preventDefault();
     setError(null);
     setLoading(true);
 
@@ -189,9 +189,8 @@ export default function ManualPredictionForm({ onAskAiInstead }) {
         justifyContent: 'space-between',
         padding: '12px 18px',
         borderRadius: '16px',
-        background: 'rgba(20, 28, 46, 0.75)',
-        border: '1px solid rgba(99, 102, 241, 0.25)',
-        backdropFilter: 'blur(16px)',
+        background: '#171717',
+        border: '1px solid #292929',
         marginBottom: '20px'
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
@@ -199,19 +198,20 @@ export default function ManualPredictionForm({ onAskAiInstead }) {
             width: '28px',
             height: '28px',
             borderRadius: '8px',
-            background: 'rgba(99, 102, 241, 0.15)',
+            background: 'rgba(255, 23, 68, 0.12)',
+            border: '1px solid rgba(255, 23, 68, 0.3)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            color: '#C0C1FF'
+            color: '#FF1744'
           }}>
             <ShieldCheck size={16} />
           </div>
           <div>
-            <div style={{ fontSize: '13px', fontWeight: 600, color: '#FFFFFF' }}>
+            <div style={{ fontSize: '13px', fontWeight: 600, color: '#F5F5F5' }}>
               Deterministic Machine Learning Valuation
             </div>
-            <div style={{ fontSize: '11px', color: '#94A3B8' }}>
+            <div style={{ fontSize: '11px', color: '#B3B3B3' }}>
               Valuations are computed strictly by trained XGBoost and Ranger Random Forest models. Zero price fabrication.
             </div>
           </div>
@@ -223,11 +223,11 @@ export default function ManualPredictionForm({ onAskAiInstead }) {
             display: 'flex',
             alignItems: 'center',
             gap: '6px',
-            background: 'rgba(255, 255, 255, 0.05)',
-            border: '1px solid rgba(255, 255, 255, 0.1)',
+            background: 'rgba(255, 23, 68, 0.08)',
+            border: '1px solid rgba(255, 23, 68, 0.25)',
             borderRadius: '8px',
             padding: '6px 12px',
-            color: '#38BDF8',
+            color: '#FF1744',
             fontSize: '12px',
             fontWeight: 600,
             cursor: 'pointer'
@@ -240,20 +240,19 @@ export default function ManualPredictionForm({ onAskAiInstead }) {
 
       {/* Main Form Container */}
       <div style={{
-        background: 'rgba(13, 19, 32, 0.9)',
-        backdropFilter: 'blur(20px)',
-        border: '1px solid rgba(255, 255, 255, 0.08)',
+        background: '#171717',
+        border: '1px solid #292929',
         borderRadius: '24px',
         padding: '28px',
-        boxShadow: '0 20px 50px rgba(0, 0, 0, 0.6)'
+        boxShadow: '0 20px 50px rgba(0, 0, 0, 0.7)'
       }}>
         {/* 3-Tab Segmented Switcher */}
         <div className="manual-type-tabs" style={{
           display: 'flex',
-          background: 'rgba(11, 17, 30, 0.8)',
+          background: '#111111',
           padding: '5px',
           borderRadius: '16px',
-          border: '1px solid rgba(255, 255, 255, 0.06)',
+          border: '1px solid #292929',
           marginBottom: '28px'
         }}>
           <button
@@ -271,9 +270,9 @@ export default function ManualPredictionForm({ onAskAiInstead }) {
               cursor: 'pointer',
               fontSize: '13px',
               fontWeight: 700,
-              background: activeTab === 'flat' ? 'linear-gradient(135deg, #3B82F6 0%, #6366F1 100%)' : 'transparent',
-              color: activeTab === 'flat' ? '#FFFFFF' : '#94A3B8',
-              boxShadow: activeTab === 'flat' ? '0 4px 15px rgba(99, 102, 241, 0.35)' : 'none',
+              background: activeTab === 'flat' ? 'linear-gradient(135deg, #FF1744 0%, #B00035 100%)' : 'transparent',
+              color: activeTab === 'flat' ? '#FFFFFF' : '#B3B3B3',
+              boxShadow: activeTab === 'flat' ? '0 4px 15px rgba(255, 23, 68, 0.35)' : 'none',
               transition: 'all 0.2s'
             }}
           >
@@ -296,9 +295,9 @@ export default function ManualPredictionForm({ onAskAiInstead }) {
               cursor: 'pointer',
               fontSize: '13px',
               fontWeight: 700,
-              background: activeTab === 'house' ? 'linear-gradient(135deg, #3B82F6 0%, #6366F1 100%)' : 'transparent',
-              color: activeTab === 'house' ? '#FFFFFF' : '#94A3B8',
-              boxShadow: activeTab === 'house' ? '0 4px 15px rgba(99, 102, 241, 0.35)' : 'none',
+              background: activeTab === 'house' ? 'linear-gradient(135deg, #FF1744 0%, #B00035 100%)' : 'transparent',
+              color: activeTab === 'house' ? '#FFFFFF' : '#B3B3B3',
+              boxShadow: activeTab === 'house' ? '0 4px 15px rgba(255, 23, 68, 0.35)' : 'none',
               transition: 'all 0.2s'
             }}
           >
@@ -321,9 +320,9 @@ export default function ManualPredictionForm({ onAskAiInstead }) {
               cursor: 'pointer',
               fontSize: '13px',
               fontWeight: 700,
-              background: activeTab === 'rent' ? 'linear-gradient(135deg, #3B82F6 0%, #6366F1 100%)' : 'transparent',
-              color: activeTab === 'rent' ? '#FFFFFF' : '#94A3B8',
-              boxShadow: activeTab === 'rent' ? '0 4px 15px rgba(99, 102, 241, 0.35)' : 'none',
+              background: activeTab === 'rent' ? 'linear-gradient(135deg, #FF1744 0%, #B00035 100%)' : 'transparent',
+              color: activeTab === 'rent' ? '#FFFFFF' : '#B3B3B3',
+              boxShadow: activeTab === 'rent' ? '0 4px 15px rgba(255, 23, 68, 0.35)' : 'none',
               transition: 'all 0.2s'
             }}
           >
@@ -341,8 +340,8 @@ export default function ManualPredictionForm({ onAskAiInstead }) {
             padding: '12px 16px',
             borderRadius: '12px',
             background: 'rgba(239, 68, 68, 0.15)',
-            border: '1px solid rgba(239, 68, 68, 0.35)',
-            color: '#FCA5A5',
+            border: '1px solid #EF4444',
+            color: '#F5F5F5',
             fontSize: '13px',
             marginBottom: '20px'
           }}>
@@ -363,8 +362,8 @@ export default function ManualPredictionForm({ onAskAiInstead }) {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
               {/* Locality Selector */}
               <div>
-                <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: '#E2E8F0', marginBottom: '6px' }}>
-                  Hyderabad Locality <span style={{ color: '#F43F5E' }}>*</span>
+                <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: '#B3B3B3', marginBottom: '6px' }}>
+                  Hyderabad Locality <span style={{ color: '#FF1744' }}>*</span>
                 </label>
                 <div style={{ position: 'relative' }}>
                   <select
@@ -374,9 +373,9 @@ export default function ManualPredictionForm({ onAskAiInstead }) {
                       width: '100%',
                       padding: '11px 14px',
                       borderRadius: '10px',
-                      background: 'rgba(11, 17, 30, 0.9)',
-                      border: '1px solid rgba(255, 255, 255, 0.1)',
-                      color: '#FFFFFF',
+                      background: '#1C1C1C',
+                      border: '1px solid #292929',
+                      color: '#F5F5F5',
                       fontSize: '13px',
                       outline: 'none',
                       cursor: 'pointer'
@@ -399,10 +398,10 @@ export default function ManualPredictionForm({ onAskAiInstead }) {
               {/* Area in Sq.Ft */}
               <div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
-                  <label style={{ fontSize: '12px', fontWeight: 600, color: '#E2E8F0' }}>
-                    Built-up Area (Sq.Ft) <span style={{ color: '#F43F5E' }}>*</span>
+                  <label style={{ fontSize: '12px', fontWeight: 600, color: '#B3B3B3' }}>
+                    Built-up Area (Sq.Ft) <span style={{ color: '#FF1744' }}>*</span>
                   </label>
-                  <span style={{ fontSize: '12px', color: '#38BDF8', fontWeight: 600 }}>
+                  <span style={{ fontSize: '12px', color: '#FF1744', fontWeight: 600 }}>
                     {formData.area} sq.ft
                   </span>
                 </div>
@@ -418,9 +417,9 @@ export default function ManualPredictionForm({ onAskAiInstead }) {
                       width: '100%',
                       padding: '11px 14px',
                       borderRadius: '10px',
-                      background: 'rgba(11, 17, 30, 0.9)',
-                      border: '1px solid rgba(255, 255, 255, 0.1)',
-                      color: '#FFFFFF',
+                      background: '#1C1C1C',
+                      border: '1px solid #292929',
+                      color: '#F5F5F5',
                       fontSize: '13px',
                       outline: 'none'
                     }}
@@ -430,8 +429,8 @@ export default function ManualPredictionForm({ onAskAiInstead }) {
 
               {/* BHK Selection Buttons */}
               <div>
-                <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: '#E2E8F0', marginBottom: '6px' }}>
-                  Bedrooms (BHK) <span style={{ color: '#F43F5E' }}>*</span>
+                <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: '#B3B3B3', marginBottom: '6px' }}>
+                  Bedrooms (BHK) <span style={{ color: '#FF1744' }}>*</span>
                 </label>
                 <div style={{ display: 'flex', gap: '8px' }}>
                   {[1, 2, 3, 4, 5].map((bhkNum) => (
@@ -443,9 +442,9 @@ export default function ManualPredictionForm({ onAskAiInstead }) {
                         flex: 1,
                         padding: '10px 0',
                         borderRadius: '8px',
-                        border: formData.bhk === bhkNum ? '1px solid #6366F1' : '1px solid rgba(255, 255, 255, 0.08)',
-                        background: formData.bhk === bhkNum ? 'rgba(99, 102, 241, 0.2)' : 'rgba(11, 17, 30, 0.8)',
-                        color: formData.bhk === bhkNum ? '#FFFFFF' : '#94A3B8',
+                        border: formData.bhk === bhkNum ? '1px solid #FF1744' : '1px solid #292929',
+                        background: formData.bhk === bhkNum ? 'rgba(255, 23, 68, 0.15)' : '#1C1C1C',
+                        color: formData.bhk === bhkNum ? '#FFFFFF' : '#B3B3B3',
                         fontWeight: formData.bhk === bhkNum ? 700 : 500,
                         fontSize: '13px',
                         cursor: 'pointer',
@@ -461,7 +460,7 @@ export default function ManualPredictionForm({ onAskAiInstead }) {
               {/* Bathrooms and Balconies */}
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
                 <div>
-                  <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: '#E2E8F0', marginBottom: '6px' }}>
+                  <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: '#B3B3B3', marginBottom: '6px' }}>
                     Bathrooms
                   </label>
                   <select
@@ -471,9 +470,9 @@ export default function ManualPredictionForm({ onAskAiInstead }) {
                       width: '100%',
                       padding: '11px 12px',
                       borderRadius: '10px',
-                      background: 'rgba(11, 17, 30, 0.9)',
-                      border: '1px solid rgba(255, 255, 255, 0.1)',
-                      color: '#FFFFFF',
+                      background: '#1C1C1C',
+                      border: '1px solid #292929',
+                      color: '#F5F5F5',
                       fontSize: '13px',
                       outline: 'none'
                     }}
@@ -485,7 +484,7 @@ export default function ManualPredictionForm({ onAskAiInstead }) {
                 </div>
 
                 <div>
-                  <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: '#E2E8F0', marginBottom: '6px' }}>
+                  <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: '#B3B3B3', marginBottom: '6px' }}>
                     Balconies
                   </label>
                   <select
@@ -495,9 +494,9 @@ export default function ManualPredictionForm({ onAskAiInstead }) {
                       width: '100%',
                       padding: '11px 12px',
                       borderRadius: '10px',
-                      background: 'rgba(11, 17, 30, 0.9)',
-                      border: '1px solid rgba(255, 255, 255, 0.1)',
-                      color: '#FFFFFF',
+                      background: '#1C1C1C',
+                      border: '1px solid #292929',
+                      color: '#F5F5F5',
                       fontSize: '13px',
                       outline: 'none'
                     }}
@@ -514,7 +513,7 @@ export default function ManualPredictionForm({ onAskAiInstead }) {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
               {/* Furnishing Status */}
               <div>
-                <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: '#E2E8F0', marginBottom: '6px' }}>
+                <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: '#B3B3B3', marginBottom: '6px' }}>
                   Furnishing Status
                 </label>
                 <div style={{ display: 'flex', gap: '8px' }}>
@@ -527,9 +526,9 @@ export default function ManualPredictionForm({ onAskAiInstead }) {
                         flex: 1,
                         padding: '10px 8px',
                         borderRadius: '8px',
-                        border: formData.furnishing === f ? '1px solid #38BDF8' : '1px solid rgba(255, 255, 255, 0.08)',
-                        background: formData.furnishing === f ? 'rgba(56, 189, 248, 0.15)' : 'rgba(11, 17, 30, 0.8)',
-                        color: formData.furnishing === f ? '#FFFFFF' : '#94A3B8',
+                        border: formData.furnishing === f ? '1px solid #FF1744' : '1px solid #292929',
+                        background: formData.furnishing === f ? 'rgba(255, 23, 68, 0.15)' : '#1C1C1C',
+                        color: formData.furnishing === f ? '#FFFFFF' : '#B3B3B3',
                         fontWeight: formData.furnishing === f ? 700 : 500,
                         fontSize: '12px',
                         cursor: 'pointer',
@@ -545,7 +544,7 @@ export default function ManualPredictionForm({ onAskAiInstead }) {
               {/* Transaction & Area Source (for Flat and House) */}
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
                 <div>
-                  <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: '#E2E8F0', marginBottom: '6px' }}>
+                  <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: '#B3B3B3', marginBottom: '6px' }}>
                     Transaction Type
                   </label>
                   <select
@@ -555,9 +554,9 @@ export default function ManualPredictionForm({ onAskAiInstead }) {
                       width: '100%',
                       padding: '11px 12px',
                       borderRadius: '10px',
-                      background: 'rgba(11, 17, 30, 0.9)',
-                      border: '1px solid rgba(255, 255, 255, 0.1)',
-                      color: '#FFFFFF',
+                      background: '#1C1C1C',
+                      border: '1px solid #292929',
+                      color: '#F5F5F5',
                       fontSize: '13px',
                       outline: 'none'
                     }}
@@ -568,7 +567,7 @@ export default function ManualPredictionForm({ onAskAiInstead }) {
                 </div>
 
                 <div>
-                  <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: '#E2E8F0', marginBottom: '6px' }}>
+                  <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: '#B3B3B3', marginBottom: '6px' }}>
                     Area Source
                   </label>
                   <select
@@ -578,9 +577,9 @@ export default function ManualPredictionForm({ onAskAiInstead }) {
                       width: '100%',
                       padding: '11px 12px',
                       borderRadius: '10px',
-                      background: 'rgba(11, 17, 30, 0.9)',
-                      border: '1px solid rgba(255, 255, 255, 0.1)',
-                      color: '#FFFFFF',
+                      background: '#1C1C1C',
+                      border: '1px solid #292929',
+                      color: '#F5F5F5',
                       fontSize: '13px',
                       outline: 'none'
                     }}
@@ -595,7 +594,7 @@ export default function ManualPredictionForm({ onAskAiInstead }) {
               {activeTab === 'house' && (
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
                   <div>
-                    <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: '#E2E8F0', marginBottom: '6px' }}>
+                    <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: '#B3B3B3', marginBottom: '6px' }}>
                       Facing Direction
                     </label>
                     <select
@@ -605,9 +604,9 @@ export default function ManualPredictionForm({ onAskAiInstead }) {
                         width: '100%',
                         padding: '11px 12px',
                         borderRadius: '10px',
-                        background: 'rgba(11, 17, 30, 0.9)',
-                        border: '1px solid rgba(255, 255, 255, 0.1)',
-                        color: '#FFFFFF',
+                        background: '#1C1C1C',
+                        border: '1px solid #292929',
+                        color: '#F5F5F5',
                         fontSize: '13px',
                         outline: 'none'
                       }}
@@ -619,7 +618,7 @@ export default function ManualPredictionForm({ onAskAiInstead }) {
                   </div>
 
                   <div>
-                    <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: '#E2E8F0', marginBottom: '6px' }}>
+                    <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: '#B3B3B3', marginBottom: '6px' }}>
                       Ownership
                     </label>
                     <select
@@ -629,9 +628,9 @@ export default function ManualPredictionForm({ onAskAiInstead }) {
                         width: '100%',
                         padding: '11px 12px',
                         borderRadius: '10px',
-                        background: 'rgba(11, 17, 30, 0.9)',
-                        border: '1px solid rgba(255, 255, 255, 0.1)',
-                        color: '#FFFFFF',
+                        background: '#1C1C1C',
+                        border: '1px solid #292929',
+                        color: '#F5F5F5',
                         fontSize: '13px',
                         outline: 'none'
                       }}
@@ -648,7 +647,7 @@ export default function ManualPredictionForm({ onAskAiInstead }) {
               {(activeTab === 'house' || activeTab === 'rent') && (
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
                   <div>
-                    <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: '#E2E8F0', marginBottom: '6px' }}>
+                    <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: '#B3B3B3', marginBottom: '6px' }}>
                       Property Floor
                     </label>
                     <input
@@ -661,9 +660,9 @@ export default function ManualPredictionForm({ onAskAiInstead }) {
                         width: '100%',
                         padding: '11px 12px',
                         borderRadius: '10px',
-                        background: 'rgba(11, 17, 30, 0.9)',
-                        border: '1px solid rgba(255, 255, 255, 0.1)',
-                        color: '#FFFFFF',
+                        background: '#1C1C1C',
+                        border: '1px solid #292929',
+                        color: '#F5F5F5',
                         fontSize: '13px',
                         outline: 'none'
                       }}
@@ -671,7 +670,7 @@ export default function ManualPredictionForm({ onAskAiInstead }) {
                   </div>
 
                   <div>
-                    <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: '#E2E8F0', marginBottom: '6px' }}>
+                    <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: '#B3B3B3', marginBottom: '6px' }}>
                       Total Floors
                     </label>
                     <input
@@ -684,9 +683,9 @@ export default function ManualPredictionForm({ onAskAiInstead }) {
                         width: '100%',
                         padding: '11px 12px',
                         borderRadius: '10px',
-                        background: 'rgba(11, 17, 30, 0.9)',
-                        border: '1px solid rgba(255, 255, 255, 0.1)',
-                        color: '#FFFFFF',
+                        background: '#1C1C1C',
+                        border: '1px solid #292929',
+                        color: '#F5F5F5',
                         fontSize: '13px',
                         outline: 'none'
                       }}
@@ -703,7 +702,7 @@ export default function ManualPredictionForm({ onAskAiInstead }) {
             alignItems: 'center',
             justifyContent: 'space-between',
             gap: '12px',
-            borderTop: '1px solid rgba(255, 255, 255, 0.08)',
+            borderTop: '1px solid #292929',
             paddingTop: '20px',
             flexWrap: 'wrap'
           }}>
@@ -711,18 +710,24 @@ export default function ManualPredictionForm({ onAskAiInstead }) {
               type="button"
               onClick={handleClear}
               style={{
-                background: 'transparent',
-                border: '1px solid rgba(255, 255, 255, 0.1)',
+                background: '#1C1C1C',
+                border: '1px solid #292929',
                 borderRadius: '12px',
                 padding: '12px 20px',
-                color: '#94A3B8',
+                color: '#B3B3B3',
                 fontSize: '13px',
                 fontWeight: 500,
                 cursor: 'pointer',
                 transition: 'all 0.2s'
               }}
-              onMouseEnter={(e) => e.currentTarget.style.color = '#FFFFFF'}
-              onMouseLeave={(e) => e.currentTarget.style.color = '#94A3B8'}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.color = '#F5F5F5';
+                e.currentTarget.style.background = '#292929';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.color = '#B3B3B3';
+                e.currentTarget.style.background = '#1C1C1C';
+              }}
             >
               Clear Form
             </button>

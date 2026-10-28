@@ -1,45 +1,55 @@
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
 
 :root {
-  /* Stitch PropGPT Dark Palette */
-  --bg-canvas: #070A11;
-  --bg-surface: #0D1320;
-  --bg-surface-low: #161B29;
-  --bg-surface-container: #1A1F2D;
-  --bg-surface-high: #242A38;
-  --bg-surface-highest: #2F3543;
-  --bg-glass: rgba(15, 23, 42, 0.68);
-  --bg-glass-elevated: rgba(23, 33, 56, 0.75);
+  /* PropGPT Complete Colour Palette */
 
-  /* Primary Accent & Glows */
-  --accent-indigo: #6366F1;
-  --accent-blue: #3B82F6;
-  --accent-purple: #A855F7;
-  --accent-cyan: #38BDF8;
-  --accent-emerald: #10B981;
-  --accent-amber: #F59E0B;
-  --accent-rose: #F43F5E;
+  /* 1. Brand Colours */
+  --brand-primary: #FF1744;     /* Crimson Red: Primary buttons, active navigation, important highlights */
+  --brand-secondary: #B00035;   /* Ruby: Gradients, hover states, aurora effects */
+  --brand-tertiary: #6A003F;    /* Burgundy: Atmospheric backgrounds and subtle decorative accents */
 
-  /* Linear Gradients */
-  --gradient-primary: linear-gradient(135deg, #3B82F6 0%, #6366F1 50%, #A855F7 100%);
-  --gradient-secondary: linear-gradient(135deg, #2563EB 0%, #38BDF8 100%);
-  --gradient-shimmer: linear-gradient(135deg, #C0C1FF 0%, #ADC6FF 40%, #DDB7FF 100%);
-  --gradient-card-top: linear-gradient(90deg, transparent, rgba(99, 102, 241, 0.4), transparent);
+  /* 2. Background and Surfaces */
+  --bg-main: #080808;           /* Main background */
+  --bg-sidebar: #0D0D0D;        /* Sidebar */
+  --bg-chat: #111111;           /* Chat surface */
+  --bg-card: #171717;           /* Cards */
+  --bg-input: #1C1C1C;          /* Input background */
+  --border-subtle: #292929;     /* Borders */
+  --border-glass: #292929;
+  --border-primary: rgba(255, 23, 68, 0.35);
+  --border-focus: #FF1744;
 
-  /* Borders & Glows */
-  --border-subtle: rgba(255, 255, 255, 0.08);
-  --border-glass: rgba(255, 255, 255, 0.12);
-  --border-primary: rgba(99, 102, 241, 0.35);
-  --border-focus: #6366F1;
-  --shadow-primary-glow: 0 0 25px rgba(99, 102, 241, 0.35);
-  --shadow-glow-cyan: 0 0 20px rgba(56, 189, 248, 0.35);
+  /* Aliases for compatibility */
+  --bg-canvas: #080808;
+  --bg-surface: #0D0D0D;
+  --bg-surface-low: #111111;
+  --bg-surface-container: #171717;
+  --bg-surface-high: #1C1C1C;
+  --bg-surface-highest: #242424;
+  --bg-glass: rgba(23, 23, 23, 0.92);
+  --bg-glass-elevated: rgba(28, 28, 28, 0.95);
 
-  /* Typography */
-  --text-primary: #F8FAFC;
-  --text-secondary: #94A3B8;
-  --text-muted: #64748B;
-  --text-dim: #475569;
+  /* 3. Text Colours */
+  --text-primary: #F5F5F5;
+  --text-secondary: #B3B3B3;
+  --text-muted: #777777;
+  --text-dim: #777777;
+  --text-disabled: #525252;
 
+  /* 4. Semantic Colours (for information & status, not branding) */
+  --semantic-success: #22C55E;  /* Green: Success / good valuation indicator */
+  --semantic-warning: #F59E0B;  /* Amber: Warning / moderate risk */
+  --semantic-error: #EF4444;    /* Red: Error / failed request */
+  --semantic-info: #3B82F6;     /* Blue: Informational */
+
+  /* Gradients & Glows */
+  --gradient-primary: linear-gradient(135deg, #FF1744 0%, #B00035 100%);
+  --gradient-secondary: linear-gradient(135deg, #B00035 0%, #6A003F 100%);
+  --gradient-shimmer: linear-gradient(135deg, #FFFFFF 0%, #FFA8BA 50%, #FF1744 100%);
+  --gradient-card-top: linear-gradient(90deg, transparent, rgba(255, 23, 68, 0.35), transparent);
+  --shadow-primary-glow: 0 0 20px rgba(255, 23, 68, 0.25);
+
+  /* Fonts */
   --font-heading: 'Plus Jakarta Sans', sans-serif;
   --font-body: 'Inter', sans-serif;
   --font-mono: 'JetBrains Mono', monospace;
@@ -60,7 +70,7 @@
 }
 
 body {
-  background-color: var(--bg-canvas);
+  background-color: var(--bg-main);
   color: var(--text-primary);
   font-family: var(--font-body);
   line-height: 1.5;
@@ -84,11 +94,11 @@ h1, h2, h3, h4, h5, h6 {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.12);
+  background: #292929;
   border-radius: 9999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(99, 102, 241, 0.45);
+  background: rgba(255, 23, 68, 0.35);
 }
 
 /* Shimmer gradient text */
@@ -99,23 +109,23 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .gradient-text-primary {
-  background: linear-gradient(135deg, #FFFFFF 0%, #C0C1FF 50%, #A855F7 100%);
+  background: linear-gradient(135deg, #FFFFFF 0%, #FFA8BA 50%, #FF1744 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 
 /* Glassmorphism Classes */
 .glass-panel {
-  background: var(--bg-glass);
+  background: var(--bg-card);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-lg);
-  box-shadow: 0 12px 32px -8px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 12px 32px -8px rgba(0, 0, 0, 0.7);
 }
 
 .glass-card-interactive {
-  background: var(--bg-glass-elevated);
+  background: var(--bg-card);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   border: 1px solid var(--border-subtle);
@@ -124,13 +134,13 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .glass-card-interactive:hover {
-  background: rgba(30, 41, 68, 0.8);
-  border-color: var(--border-primary);
+  background: var(--bg-input);
+  border-color: rgba(255, 23, 68, 0.35);
   transform: translateY(-2px);
-  box-shadow: 0 12px 32px -8px rgba(0, 0, 0, 0.5), 0 0 24px -4px rgba(99, 102, 241, 0.25);
+  box-shadow: 0 12px 32px -8px rgba(0, 0, 0, 0.7), 0 0 20px -4px rgba(255, 23, 68, 0.2);
 }
 
-/* Primary Gradient Button */
+/* Primary Gradient Button (Crimson Red) */
 .btn-gradient {
   background: var(--gradient-primary);
   color: #FFFFFF;
@@ -149,9 +159,9 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .btn-gradient:hover {
-  filter: brightness(1.12);
+  filter: brightness(1.1);
   transform: translateY(-1px);
-  box-shadow: 0 0 30px rgba(99, 102, 241, 0.55);
+  box-shadow: 0 0 26px rgba(255, 23, 68, 0.45);
 }
 
 .btn-gradient:active {
@@ -159,7 +169,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .btn-glass {
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(255, 255, 255, 0.03);
   color: var(--text-primary);
   font-family: var(--font-heading);
   font-weight: 500;
@@ -174,8 +184,9 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .btn-glass:hover {
-  background: rgba(255, 255, 255, 0.1);
-  border-color: var(--border-glass);
+  background: var(--bg-input);
+  border-color: rgba(255, 255, 255, 0.15);
+  color: #FFFFFF;
 }
 
 /* Tabular Numerics for Real Estate Prices */
@@ -209,4 +220,67 @@ h1, h2, h3, h4, h5, h6 {
 
 .animate-spin {
   animation: spin 1s linear infinite;
+}
+
+/* Leaflet Dark Mode Custom Styles */
+.propgpt-map-container .leaflet-container {
+  background-color: var(--bg-main) !important;
+  font-family: var(--font-body, 'Inter', sans-serif) !important;
+}
+
+.propgpt-map-container .leaflet-popup-content-wrapper {
+  background: #171717 !important;
+  color: var(--text-primary) !important;
+  border: 1px solid var(--border-subtle) !important;
+  border-radius: 10px !important;
+  backdrop-filter: blur(12px) !important;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.7) !important;
+  padding: 2px !important;
+}
+
+.propgpt-map-container .leaflet-popup-content {
+  margin: 10px 12px !important;
+  line-height: 1.4 !important;
+}
+
+.propgpt-map-container .leaflet-popup-tip {
+  background: #171717 !important;
+  border: 1px solid var(--border-subtle) !important;
+}
+
+.propgpt-map-container .leaflet-popup-close-button {
+  color: var(--text-muted) !important;
+  padding: 6px !important;
+}
+
+.propgpt-map-container .leaflet-popup-close-button:hover {
+  color: var(--text-primary) !important;
+}
+
+.propgpt-map-container .leaflet-control-zoom {
+  border: 1px solid var(--border-subtle) !important;
+  border-radius: 8px !important;
+  overflow: hidden !important;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5) !important;
+}
+
+.propgpt-map-container .leaflet-control-zoom a {
+  background-color: #171717 !important;
+  color: var(--text-secondary) !important;
+  border-bottom: 1px solid var(--border-subtle) !important;
+}
+
+.propgpt-map-container .leaflet-control-zoom a:hover {
+  background-color: #1C1C1C !important;
+  color: #FFFFFF !important;
+}
+
+.propgpt-map-container .leaflet-control-attribution {
+  background: rgba(8, 8, 8, 0.85) !important;
+  color: var(--text-muted) !important;
+  font-size: 10px !important;
+}
+
+.propgpt-map-container .leaflet-control-attribution a {
+  color: var(--text-secondary) !important;
 }
